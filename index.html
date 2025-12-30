@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nepal Voyage - Recommendation Survey</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Mukta:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="nepal-bg"></div>
+
+<div class="container">
+    <div class="form-card">
+        <header>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/9/9b/Flag_of_Nepal.svg" alt="Nepal Flag" class="logo">
+            <h1>Nepal Voyage</h1>
+            <p>Discover your perfect Himalayan escape</p>
+            <div class="progress-container">
+                <div class="progress-bar" id="progress"></div>
+            </div>
+        </header>
+
+        <form id="surveyForm" method="POST" action="/recommend/">
+           
+            
+            <div class="step active" data-step="1">
+                <h3>🌿 Nature & Wildlife</h3>
+                <div class="question">
+                    <label>How much do you enjoy dense forests?</label>
+                    <input type="range" name="q1" min="1" max="10" value="5">
+                </div>
+                <div class="question">
+                    <label>How important is seeing rare wildlife (Tigers/Rhinos)?</label>
+                    <input type="range" name="q2" min="1" max="10" value="5">
+                </div>
+                <div class="question">
+                    <label>Do you prefer lake views over city skylines?</label>
+                    <input type="range" name="q3" min="1" max="10" value="5">
+                </div>
+                <div class="question">
+                    <label>How much do you value "greenery"?</label>
+                    <input type="range" name="q4" min="1" max="10" value="5">
+                </div>
+                <button type="button" class="btn-next">Next Step →</button>
+            </div>
+
+            <div class="step" data-step="2">
+                <h3>🏔️ Thrill & Activity</h3>
+                <div class="question">
+                    <label>Interest in demanding activities (Climbing/Hiking)?</label>
+                    <input type="range" name="q5" min="1" max="10" value="5">
+                </div>
+                <div class="question">
+                    <label>Would you enjoy rafting or bungee jumping?</label>
+                    <input type="range" name="q6" min="1" max="10" value="5">
+                </div>
+                <div class="question">
+                    <label>Do you prefer unpaved, rugged trails?</label>
+                    <input type="range" name="q7" min="1" max="10" value="5">
+                </div>
+                <div class="question">
+                    <label>Excitement for "off-the-beaten-path" spots?</label>
+                    <input type="range" name="q8" min="1" max="10" value="5">
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn-prev">← Back</button>
+                    <button type="button" class="btn-next">Next Step →</button>
+                </div>
+            </div>
+
+            <div class="step" data-step="3">
+                <h3>🛕 Heritage & Culture</h3>
+                <div class="question">
+                    <label>Interest in ancient temples/monuments?</label>
+                    <input type="range" name="q9" min="1" max="10" value="5">
+                </div>
+                <div class="question">
+                    <label>Interest in local traditions/ethnic lifestyles?</label>
+                    <input type="range" name="q10" min="1" max="10" value="5">
+                </div>
+                <div class="question">
+                    <label>Importance of trying traditional local food?</label>
+                    <input type="range" name="q11" min="1" max="10" value="5">
+                </div>
+                <div class="question">
+                    <label>Preference for "Living Heritage" (Durbar Squares)?</label>
+                    <input type="range" name="q12" min="1" max="10" value="5">
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn-prev">← Back</button>
+                    <button type="button" class="btn-next">Next Step →</button>
+                </div>
+            </div>
+
+            <div class="step" data-step="4">
+                <h3>☁️ Terrain & Elevation</h3>
+                <div class="question">
+                    <label>Do you enjoy cold mountain air over lowlands?</label>
+                    <input type="range" name="q13" min="1" max="10" value="5">
+                </div>
+                <div class="question">
+                    <label>Is seeing snow-capped peaks a "must"?</label>
+                    <input type="range" name="q14" min="1" max="10" value="5">
+                </div>
+                <div class="question">
+                    <label>Comfort level with high elevations (3000m+)?</label>
+                    <input type="range" name="q15" min="1" max="10" value="5">
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn-prev">← Back</button>
+                    <button type="submit" class="btn-submit">Find My Adventure!</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
