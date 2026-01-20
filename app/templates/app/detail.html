@@ -1,0 +1,128 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antaranga | {{ place.name }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { --gold: #D4AF37; --dark: #0a0a0a; --glass: rgba(255, 255, 255, 0.05); }
+        body { background: var(--dark); color: white; font-family: 'Montserrat', sans-serif; margin: 0; overflow-x: hidden; }
+        
+        /* Hero Section */
+        .hero { 
+            height: 100vh; position: relative;
+            background: linear-gradient(rgba(0,0,0,0.5), var(--dark)), url('{{ place.image_url }}') center/cover no-repeat fixed;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+        }
+        .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(3rem, 10vw, 8rem); color: var(--gold); margin: 0; font-style: italic; }
+        
+        /* Stats Bar */
+        .stats-bar { 
+            display: flex; gap: 40px; background: var(--glass); backdrop-filter: blur(15px);
+            padding: 30px 60px; border-radius: 100px; border: 1px solid rgba(212, 175, 55, 0.3);
+            margin-top: -50px; z-index: 10;
+        }
+        .stat-item h4 { margin: 0; font-size: 0.7rem; color: var(--gold); letter-spacing: 2px; }
+        .stat-item p { margin: 5px 0 0; font-weight: bold; }
+
+        /* Main Container */
+        .container { max-width: 1200px; margin: 100px auto; padding: 0 20px; }
+        
+        /* Alternating Sections */
+        .row { display: flex; align-items: center; gap: 80px; margin-bottom: 150px; }
+        .row.reverse { flex-direction: row-reverse; }
+        .col-text { flex: 1; }
+        .col-img { flex: 1; }
+        .col-img img { width: 100%; height: 500px; object-fit: cover; border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1); }
+        
+        h2 { font-family: 'Playfair Display', serif; font-size: 3.5rem; color: var(--gold); margin-bottom: 20px; }
+        p { font-size: 1.1rem; line-height: 1.8; color: #ccc; }
+
+        /* Chart Area */
+        .chart-container { background: var(--glass); padding: 30px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.05); }
+
+        /* Map */
+        .map-frame { width: 100%; height: 500px; border-radius: 30px; border: 1px solid var(--gold); filter: invert(90%) hue-rotate(180deg) brightness(0.7); }
+    </style>
+</head>
+<body>
+
+    <section class="hero">
+        <p style="letter-spacing: 12px; color: var(--gold); font-weight: 300;">NEPAL UNVEILED</p>
+        <h1>{{ place.name }}</h1>
+        <div class="stats-bar">
+            <div class="stat-item"><h4>BEST SEASON</h4><p>{{ place.best_season }}</p></div>
+            <div class="stat-item"><h4>WEATHER</h4><p id="temp-display">2°C ({{ place.weather_city }})</p></div>
+            <div class="stat-item"><h4>ALTITUDE</h4><p>{{ place.altitude_score }} / 10</p></div>
+        </div>
+    </section>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-text">
+                <h2>The Vibe</h2>
+                <p>{{ place.history }}</p>
+                <div class="chart-container">
+                    <canvas id="vibeChart"></canvas>
+                </div>
+            </div>
+            <div class="col-img"><img src="{{ place.history_img }}"></div>
+        </div>
+
+        <div class="row reverse">
+            <div class="col-text">
+                <h2>Tradition</h2>
+                <p>{{ place.culture_tradition }}</p>
+                <div style="background: rgba(212, 175, 55, 0.1); padding: 20px; border-left: 4px solid var(--gold); margin-top: 20px;">
+                    <strong>Supervisor's Highlight:</strong> Exploring the deep cultural clusters found via K-Means.
+                </div>
+            </div>
+            <div class="col-img"><img src="{{ place.culture_img }}"></div>
+        </div>
+
+        <div class="row">
+            <div class="col-text">
+                <h2>Authentic Taste</h2>
+                <p>{{ place.local_food }}</p>
+                <p><strong>Must Try:</strong> {{ place.highlights }}</p>
+            </div>
+            <div class="col-img"><img src="{{ place.food_img }}"></div>
+        </div>
+
+        <h2 style="text-align: center; margin-bottom: 50px;">Navigate the Journey</h2>
+        <iframe class="map-frame" src="{{ place.map_embed_url }}" allowfullscreen="" loading="lazy"></iframe>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('vibeChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['Nature', 'Adventure', 'Culture', 'Altitude'],
+                datasets: [{
+                    label: 'Scores',
+                    data: [{{ place.nature_score }}, {{ place.adventure_score }}, {{ place.culture_score }}, {{ place.altitude_score }}],
+                    backgroundColor: 'rgba(212, 175, 55, 0.3)',
+                    borderColor: '#D4AF37',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#fff'
+                }]
+            },
+            options: {
+                scales: {
+                    r: {
+                        grid: { color: 'rgba(255,255,255,0.1)' },
+                        angleLines: { color: 'rgba(255,255,255,0.1)' },
+                        pointLabels: { color: '#fff', font: { size: 14 } },
+                        ticks: { display: false }
+                    }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,195 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antaranga | The Eternal Oracle</title>
+    <link href="https://fonts.googleapis.com/css2?family=Jaini&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --crimson: #dc143c;
+            --blue: #003893;
+            --gold: #b08d57;
+            --snow: #fdfcf8;
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            background-color: var(--snow);
+            font-family: 'Poppins', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        /* --- Header --- */
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 40px; background: var(--crimson);
+            border-bottom: 3px solid var(--blue);
+            position: fixed; top: 0; width: 100%; z-index: 10000; box-sizing: border-box;
+        }
+        .logo { font-family: 'Jaini', cursive; font-size: 1.8rem; color: white; }
+        nav a { color: white; text-decoration: none; margin-left: 20px; font-weight: 600; font-size: 0.85rem; }
+
+        /* --- SECTION 1: THE ORACLE --- */
+        .oracle-section {
+            height: 100vh;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            overflow: hidden; position: relative;
+        }
+
+        .title-area { text-align: center; margin-bottom: 40px; z-index: 10; }
+        .title-area p { color: var(--gold); letter-spacing: 4px; font-size: 0.6rem; font-weight: 700; margin: 0; }
+        .title-area h1 { font-family: 'Jaini', cursive; font-size: 2.2rem; color: var(--crimson); margin: 5px 0; }
+
+        .scene {
+            perspective: 1200px;
+            width: 100%; height: 350px;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .wheel {
+            width: 180px; height: 260px;
+            position: relative; transform-style: preserve-3d;
+            transition: transform 0.1s linear;
+        }
+
+        .panel {
+            position: absolute; width: 180px; height: 260px;
+            background: white; border-radius: 12px; padding: 12px;
+            backface-visibility: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.06);
+            cursor: pointer; box-sizing: border-box; border: 1px solid #eee;
+            display: flex; flex-direction: column;
+            /* Transitioning only scale to prevent weird tilting */
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+
+        /* Clean Hover: Only scales up, no tilting */
+        .panel:hover {
+            border-color: var(--gold);
+            z-index: 5000;
+        }
+
+        .panel img { width: 100%; height: 130px; object-fit: cover; border-radius: 8px; }
+        .panel h3 { font-family: 'Jaini', cursive; font-size: 1.1rem; text-align: center; margin: 12px 0; color: #333; }
+
+        .scroll-down {
+            position: absolute; bottom: 30px; font-size: 0.7rem;
+            color: #ccc; letter-spacing: 2px; font-weight: 800;
+        }
+
+        /* --- SECTION 2: FULL LIST GRID --- */
+        .list-section {
+            padding: 100px 10%; background: white;
+            min-height: 100vh;
+        }
+
+        .list-section h2 { font-family: 'Jaini', cursive; font-size: 2.8rem; color: var(--crimson); text-align: center; margin-bottom: 50px; }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+        }
+
+        .place-card {
+            background: var(--snow); border-radius: 20px; overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.04); transition: 0.3s;
+            border: 1px solid #f0f0f0;
+        }
+        .place-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        .place-card img { width: 100%; height: 220px; object-fit: cover; }
+        .place-card-content { padding: 25px; }
+        .place-card-content h3 { font-family: 'Jaini', cursive; font-size: 2rem; margin: 0; color: var(--crimson); }
+        .place-card-content p { font-size: 0.9rem; color: #666; line-height: 1.6; margin-top: 10px; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">ANTARANGA</div>
+        <nav>
+            <a href="{% url 'home' %}">Home</a>
+            <a href="#full-list">All Places</a>
+            <a href="{% url 'home' %}" style="border: 2px solid white; padding: 5px 15px; border-radius: 20px;">Return</a>
+        </nav>
+    </header>
+
+    <section class="oracle-section">
+        <div class="title-area">
+            <p>SOUL RECOMMENDATION</p>
+            <h1>Discover Your Path</h1>
+        </div>
+
+        <div class="scene">
+            <div class="wheel" id="wheel">
+                {% for loc in locations %}
+                <div class="panel" onmouseenter="pause()" onmouseleave="resume()">
+                    <img src="{% static loc.manual_image %}" alt="{{ loc.name }}">
+                    <h3>{{ loc.name }}</h3>
+                    <div style="text-align: center; color: var(--gold); font-size: 0.5rem; font-weight: 800; margin-top: auto;">PAUSE TO EXPLORE</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="scroll-down">↓ SCROLL FOR FULL LIST ↓</div>
+    </section>
+
+    <section class="list-section" id="full-list">
+        <h2>Your Sanctuaries</h2>
+        <div class="grid-container">
+            {% for loc in locations %}
+            <div class="place-card">
+               <img src="{% static loc.manual_image %}" alt="{{ loc.name }}">
+                <div class="place-card-content">
+                    <h3>{{ loc.name }}</h3>
+                    <p>{{ loc.description }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <script>
+        const wheel = document.getElementById('wheel');
+        const panels = document.querySelectorAll('.panel');
+        let rotation = 0;
+        let isPaused = false;
+        const panelCount = panels.length;
+        const theta = 360 / panelCount;
+
+        // Position cards in a tight circle (translateZ 300px)
+        panels.forEach((panel, i) => {
+            panel.style.transform = `rotateY(${i * theta}deg) translateZ(300px)`;
+            
+            // To fix tilting, we store the original rotation
+            panel.dataset.rotation = i * theta;
+        });
+
+        function pause() { 
+            isPaused = true; 
+            // When pausing, slightly scale up the specific panel without tilting
+            event.currentTarget.style.transform = `rotateY(${event.currentTarget.dataset.rotation}deg) translateZ(300px) scale(1.1)`;
+        }
+
+        function resume() { 
+            isPaused = false; 
+            event.currentTarget.style.transform = `rotateY(${event.currentTarget.dataset.rotation}deg) translateZ(300px) scale(1)`;
+        }
+
+        function animate() {
+            if (!isPaused && window.scrollY < 400) {
+                rotation -= 0.25;
+                wheel.style.transform = `rotateY(${rotation}deg)`;
+            }
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nepal Voyage - Recommendation Survey</title>
+    <link rel="stylesheet" href="{% static 'app/css/survey.css' %}">
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    {% comment %} <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;700&family=Poppins:wght@300;500;600&display=swap" rel="stylesheet"> {% endcomment %}
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="logo">ANTARANGA</div>
+        <nav>
+            <a href="{% url 'home' %}">Home</a>
+            <a href="#">The Vibe Check</a>
+            <a href="#">Destination</a>
+            <a href="#">Explore</a>
+            <button class="nav-btn">Design Your Journey</button>
+        </nav>
+    </header>
+
+    <div class="nepal-bg"></div>
+    
+    <div class="container">
+        <div class="form-card">
+            <nav class="survey-nav">
+                <div class="nav-item active" data-for="1">🌿</div>
+                <div class="nav-line"></div>
+                <div class="nav-item" data-for="2">🏔️</div>
+                <div class="nav-line"></div>
+                <div class="nav-item" data-for="3">🛕</div>
+                <div class="nav-line"></div>
+                <div class="nav-item" data-for="4">☁️</div>
+                <div class="nav-line"></div>
+                <div class="nav-item" data-for="5">🧘</div>
+            </nav>
+
+            <header class="survey-header">
+                <h2 id="step-title">Nature & Wildlife</h2>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress"></div>
+                </div>
+            </header>
+
+            <form id="surveyForm" method="POST" action="{% url 'recommend' %}">
+                {% csrf_token %}
+                
+                <div class="step active" data-step="1" data-title="Nature & Wildlife">
+                    <div class="question">
+                        <label>How much do you enjoy dense subtropical forests?</label>
+                        <div class="slider-wrapper">
+                            <input type="range" name="nature_forests" min="1" max="10" value="5">
+                            <span class="value-tag">5</span>
+                        </div>
+                    </div>
+                    <div class="question">
+                        <label>Importance of seeing rare wildlife (Tigers, Rhinos)?</label>
+                        <div class="slider-wrapper">
+                            <input type="range" name="nature_wildlife" min="1" max="10" value="5">
+                            <span class="value-tag">5</span>
+                        </div>
+                    </div>
+                    <div class="question">
+                        <label>Preference for serene lake views over city skylines?</label>
+                        <div class="slider-wrapper">
+                            <input type="range" name="nature_lakes" min="1" max="10" value="5">
+                            <span class="value-tag">5</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-next">Next: Thrill →</button>
+                </div>
+
+                <div class="step" data-step="2" data-title="Thrill & Activity">
+                    <div class="question"><label>Interest in demanding hiking or climbing?</label>
+                        <div class="slider-wrapper"><input type="range" name="thrill_climb" min="1" max="10" value="5"><span class="value-tag">5</span></div></div>
+                    <div class="question"><label>Desire for extreme sports (Rafting, Paragliding)?</label>
+                        <div class="slider-wrapper"><input type="range" name="thrill_extreme" min="1" max="10" value="5"><span class="value-tag">5</span></div></div>
+                    <div class="question"><label>Do you prefer "off-the-beaten-path" rugged trails?</label>
+                        <div class="slider-wrapper"><input type="range" name="thrill_rugged" min="1" max="10" value="5"><span class="value-tag">5</span></div></div>
+                    <div class="btn-group">
+                        <button type="button" class="btn-prev">← Back</button>
+                        <button type="button" class="btn-next">Continue →</button>
+                    </div>
+                </div>
+
+                <div class="step" data-step="3" data-title="Heritage & Culture">
+                    <div class="question"><label>Interest in ancient temples and architecture?</label>
+                        <div class="slider-wrapper"><input type="range" name="culture_temples" min="1" max="10" value="5"><span class="value-tag">5</span></div></div>
+                    <div class="question"><label>Importance of local festivals and live rituals?</label>
+                        <div class="slider-wrapper"><input type="range" name="culture_festivals" min="1" max="10" value="5"><span class="value-tag">5</span></div></div>
+                    <div class="question"><label>Desire to interact with local ethnic communities?</label>
+                        <div class="slider-wrapper"><input type="range" name="culture_ethnic" min="1" max="10" value="5"><span class="value-tag">5</span></div></div>
+                    <div class="btn-group">
+                        <button type="button" class="btn-prev">← Back</button>
+                        <button type="button" class="btn-next">Continue →</button>
+                    </div>
+                </div>
+
+                <div class="step" data-step="4" data-title="Terrain & Elevation">
+                    <div class="question"><label>Do you prefer cold mountain air over warmth?</label>
+                        <div class="slider-wrapper"><input type="range" name="terrain_cold" min="1" max="10" value="5"><span class="value-tag">5</span></div></div>
+                    <div class="question"><label>Is seeing snow-capped peaks a "must"?</label>
+                        <div class="slider-wrapper"><input type="range" name="terrain_snow" min="1" max="10" value="5"><span class="value-tag">5</span></div></div>
+                    <div class="question"><label>Comfort level with high altitudes (3500m+)?</label>
+                        <div class="slider-wrapper"><input type="range" name="terrain_alt" min="1" max="10" value="5"><span class="value-tag">5</span></div></div>
+                    <div class="btn-group">
+                        <button type="button" class="btn-prev">← Back</button>
+                        <button type="button" class="btn-next">Almost Done →</button>
+                    </div>
+                </div>
+
+                <div class="step" data-step="5" data-title="Travel Style">
+                    <div class="question"><label>Preference for luxury hotels over homestays?</label>
+                        <div class="slider-wrapper"><input type="range" name="style_luxury" min="1" max="10" value="5"><span class="value-tag">5</span></div></div>
+                    <div class="question"><label>Importance of spiritual silence spots?</label>
+                        <div class="slider-wrapper"><input type="range" name="style_peace" min="1" max="10" value="5"><span class="value-tag">5</span></div></div>
+                    <div class="question"><label>Do you value vibrant nightlife and urban vibes?</label>
+                        <div class="slider-wrapper"><input type="range" name="style_city" min="1" max="10" value="5"><span class="value-tag">5</span></div></div>
+                    <div class="btn-group">
+                        <button type="button" class="btn-prev">← Back</button>
+                        <button type="submit" class="btn-submit">Generate My Plan!</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="{% static 'app/js/survey.js' %}"></script>
+</body>
+</html>
