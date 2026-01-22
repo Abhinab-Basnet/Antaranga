@@ -1,13 +1,14 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, Http404
 from .utils import get_recommendations
 from .models import Location 
+from .data import DESTINATIONS  # Import the new dictionary from data.py
 
-# 1. ADD THIS BACK: Landing Page View
+# 1. Landing Page View
 def home(request):
     """Renders the main Antaranga landing page."""
     return render(request, 'app/index.html')
 
-# 2. ADD THIS BACK: Survey Form View
+# 2. Survey Form View
 def survey(request):
     """Renders the survey page."""
     return render(request, 'app/survey.html')
@@ -17,7 +18,7 @@ def recommend(request):
     """Processes survey data and returns clustered recommendations."""
     if request.method == "POST":
         try:
-            # 1. Aggregate the slider data
+            # Aggregate the slider data
             nature = (int(request.POST.get('nature_forests', 5)) + 
                       int(request.POST.get('nature_wildlife', 5)) + 
                       int(request.POST.get('nature_lakes', 5))) / 3
@@ -36,34 +37,34 @@ def recommend(request):
 
             user_input = [nature, adventure, culture, altitude]
             
-            # 2. Get recommendations from K-Means
+            # Get recommendations from K-Means
             recommendations, cluster_id = get_recommendations(user_input)
             
-            # 3. THE IMAGE MAP
+            # Image Map (Matches the names in your Database/Model)
             image_map = {
                 'Everest Base Camp': 'app/assets/images/ebc.jpg',
-                'Pokhara (Lakeside)': 'app/assets/images/pokhara.jpg',
-                'Kathmandu Durbar Square': 'app/assets/images/kathmandu.jpg',
-                'Chitwan National Park': 'app/assets/images/chitwan.jpg',
+                'Pokhara (Lakeside)': 'app/assets/images/rara.jpeg',
+                'Kathmandu Durbar Square': 'app/assets/images/kds.jpeg',
+                'Chitwan National Park': 'app/assets/images/chitwan.jpeg',
                 'Lumbini (Birthplace of Buddha)': 'app/assets/images/lumbini.jpg',
-                'Annapurna Base Camp': 'app/assets/images/abc.jpg',
-                'Bhaktapur Durbar Square': 'app/assets/images/bhaktapur.jpg',
-                'Nagarkot (Sunrise View)': 'app/assets/images/nagarkot.jpg',
-                'Rara Lake': 'app/assets/images/rara.jpg',
-                'Muktinath Temple': 'app/assets/images/muktinath.jpg',
-                'Ghorepani Poon Hill': 'app/assets/images/poonhill.jpg',
-                'Janakpur (Janaki Temple)': 'app/assets/images/janakpur.jpg',
-                'Bandipur Village': 'app/assets/images/bandipur.jpg',
-                'Langtang Valley': 'app/assets/images/langtang.jpg',
-                'Manaslu Circuit': 'app/assets/images/manaslu.jpg',
+                'Annapurna Base Camp': 'app/assets/images/annapurna.jpg',
+                'Bhaktapur Durbar Square': 'app/assets/images/bds.jpeg',
+                'Nagarkot (Sunrise View)': 'app/assets/images/nagarkot.jpeg',
+                'Rara Lake': 'app/assets/images/rara.jpeg',
+                'Muktinath Temple': 'app/assets/images/kds.jpg',
+                'Ghorepani Poon Hill': 'app/assets/images/poon.jpeg',
+                'Janakpur (Janaki Temple)': 'app/assets/images/janaki.jpeg',
+                'Bandipur Village': 'app/assets/images/bandipur.jpeg',
+                'Langtang Valley': 'app/assets/images/langtang.jpeg',
+                'Manaslu Circuit': 'app/assets/images/manaslucircuit.jpeg',
                 'Ilam (Tea Gardens)': 'app/assets/images/ilam.jpeg',
-                'Upper Mustang (Lo Manthang)': 'app/assets/images/mustang.jpg',
-                'Gosaikunda Lake': 'app/assets/images/gosaikunda.jpg',
-                'Patan Durbar Square': 'app/assets/images/patan.jpg',
-                'Bardia National Park': 'app/assets/images/bardia.jpg',
+                'Upper Mustang (Lo Manthang)': 'app/assets/images/mustang.jpeg',
+                'Gosaikunda Lake': 'app/assets/images/gosaikunda.jpeg',
+                'Patan Durbar Square': 'app/assets/images/pds.jpeg',
+                'Bardia National Park': 'app/assets/images/bardiya.jpeg',
             }
 
-            # 4. Attach image paths to the results
+            # Attach image paths to the results
             for loc in recommendations:
                 loc.manual_image = image_map.get(loc.name, 'app/assets/images/default.jpg')
             
@@ -77,3 +78,20 @@ def recommend(request):
             return redirect('survey')
     
     return redirect('survey')
+
+# 4. NEW: Destination Detail View
+def destination_detail(request, place_slug):
+    """Fetches detailed info from data.py based on the URL slug."""
+    
+    # We clean the slug (e.g., 'mount-everest' -> 'mounteverest') 
+    # to match the keys in your data.py
+    clean_key = place_slug.lower().replace('-', '')
+    
+    # Fetch from the DESTINATIONS dictionary in data.py
+    place = DESTINATIONS.get(clean_key)
+    
+    if not place:
+        # If the place is not in your data.py yet, you can show a 404 or a fallback
+        raise Http404("This soul sanctuary is still being mapped by the Oracle.")
+        
+    return render(request, 'app/detail.html', {'place': place})

@@ -62,11 +62,9 @@
             backface-visibility: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.06);
             cursor: pointer; box-sizing: border-box; border: 1px solid #eee;
             display: flex; flex-direction: column;
-            /* Transitioning only scale to prevent weird tilting */
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
         }
 
-        /* Clean Hover: Only scales up, no tilting */
         .panel:hover {
             border-color: var(--gold);
             z-index: 5000;
@@ -94,16 +92,32 @@
             gap: 40px;
         }
 
+        .place-card-link {
+            text-decoration: none;
+            color: inherit;
+        }
+
         .place-card {
             background: var(--snow); border-radius: 20px; overflow: hidden;
             box-shadow: 0 10px 20px rgba(0,0,0,0.04); transition: 0.3s;
             border: 1px solid #f0f0f0;
+            height: 100%;
         }
         .place-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
         .place-card img { width: 100%; height: 220px; object-fit: cover; }
         .place-card-content { padding: 25px; }
         .place-card-content h3 { font-family: 'Jaini', cursive; font-size: 2rem; margin: 0; color: var(--crimson); }
         .place-card-content p { font-size: 0.9rem; color: #666; line-height: 1.6; margin-top: 10px; }
+        
+        .view-btn {
+            display: inline-block;
+            margin-top: 15px;
+            color: var(--gold);
+            font-weight: 700;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
 
     </style>
 </head>
@@ -127,10 +141,14 @@
         <div class="scene">
             <div class="wheel" id="wheel">
                 {% for loc in locations %}
-                <div class="panel" onmouseenter="pause()" onmouseleave="resume()">
+                <div class="panel" 
+                     onmouseenter="pause()" 
+                     onmouseleave="resume()" 
+                     onclick="window.location.href='/destination/{{ loc.name|slugify }}/'"
+                     data-rotation="">
                     <img src="{% static loc.manual_image %}" alt="{{ loc.name }}">
                     <h3>{{ loc.name }}</h3>
-                    <div style="text-align: center; color: var(--gold); font-size: 0.5rem; font-weight: 800; margin-top: auto;">PAUSE TO EXPLORE</div>
+                    <div style="text-align: center; color: var(--gold); font-size: 0.5rem; font-weight: 800; margin-top: auto;">PAUSE & CLICK TO EXPLORE</div>
                 </div>
                 {% endfor %}
             </div>
@@ -143,13 +161,16 @@
         <h2>Your Sanctuaries</h2>
         <div class="grid-container">
             {% for loc in locations %}
-            <div class="place-card">
-               <img src="{% static loc.manual_image %}" alt="{{ loc.name }}">
-                <div class="place-card-content">
-                    <h3>{{ loc.name }}</h3>
-                    <p>{{ loc.description }}</p>
+            <a href="/destination/{{ loc.name|slugify }}/" class="place-card-link">
+                <div class="place-card">
+                   <img src="{% static loc.manual_image %}" alt="{{ loc.name }}">
+                    <div class="place-card-content">
+                        <h3>{{ loc.name }}</h3>
+                        <p>{{ loc.description }}</p>
+                        <span class="view-btn">View the Soul of {{ loc.name }} →</span>
+                    </div>
                 </div>
-            </div>
+            </a>
             {% endfor %}
         </div>
     </section>
@@ -164,21 +185,21 @@
 
         // Position cards in a tight circle (translateZ 300px)
         panels.forEach((panel, i) => {
-            panel.style.transform = `rotateY(${i * theta}deg) translateZ(300px)`;
-            
-            // To fix tilting, we store the original rotation
-            panel.dataset.rotation = i * theta;
+            const panelRotation = i * theta;
+            panel.style.transform = `rotateY(${panelRotation}deg) translateZ(300px)`;
+            panel.dataset.rotation = panelRotation;
         });
 
         function pause() { 
             isPaused = true; 
-            // When pausing, slightly scale up the specific panel without tilting
-            event.currentTarget.style.transform = `rotateY(${event.currentTarget.dataset.rotation}deg) translateZ(300px) scale(1.1)`;
+            const currentRotation = event.currentTarget.dataset.rotation;
+            event.currentTarget.style.transform = `rotateY(${currentRotation}deg) translateZ(300px) scale(1.1)`;
         }
 
         function resume() { 
             isPaused = false; 
-            event.currentTarget.style.transform = `rotateY(${event.currentTarget.dataset.rotation}deg) translateZ(300px) scale(1)`;
+            const currentRotation = event.currentTarget.dataset.rotation;
+            event.currentTarget.style.transform = `rotateY(${currentRotation}deg) translateZ(300px) scale(1)`;
         }
 
         function animate() {
