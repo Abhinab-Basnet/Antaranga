@@ -1,18 +1,26 @@
 from django.shortcuts import render, redirect
 from .utils import get_recommendations
 from .models import Location 
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
+
+
 
 # 1. ADD THIS BACK: Landing Page View
+@login_required
 def home(request):
     """Renders the main Antaranga landing page."""
     return render(request, 'app/index.html')
 
 # 2. ADD THIS BACK: Survey Form View
+@login_required
 def survey(request):
     """Renders the survey page."""
     return render(request, 'app/survey.html')
 
 # 3. K-Means Logic & Results View
+@login_required
 def recommend(request):
     """Processes survey data and returns clustered recommendations."""
     if request.method == "POST":
@@ -77,3 +85,17 @@ def recommend(request):
             return redirect('survey')
     
     return redirect('survey')
+
+
+
+# This is our signup logic
+def signup_view(request):
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()  # Saves user to MySQL ANTARANGA.auth_user
+            login(request, user)  # Starts the Session
+            return redirect('home')  # Send to landing page after signup
+    else:
+        form = UserCreationForm()
+    return render(request, 'app/signup.html', {'form': form})

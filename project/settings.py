@@ -65,7 +65,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'ANTARANGA',
         'USER': 'root',
-        'PASSWORD': 'Abhinab@1234',
+        'PASSWORD': 'whydouneed123@#',
         'HOST': 'localhost',
         'PORT': '3306',
     }
@@ -98,3 +98,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'login'
