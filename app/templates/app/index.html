@@ -6,6 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Antaranga - Discover Nepal</title>
     <link rel="stylesheet" href="{% static 'app/css/style.css' %}" />
+    <style>
+  /* We use CSS classes so the editor doesn't mess with HTML quotes */
+  .card-everest { background-image: url("{% static 'app/assets/images/everestmain.jpg' %}"); }
+  .card-swayambhu { background-image: url("{% static 'app/assets/images/buddhanath.jpg' %}"); }
+  .card-annapurna { background-image: url("{% static 'app/assets/images/annapurna.jpg' %}"); }
+  .card-pashupati { background-image: url("{% static 'app/assets/images/Pashupatinath Temple.jpeg' %}"); }
+  .card-lumbini { background-image: url("{% static 'app/assets/images/lumbini1.jpg' %}"); }
+
+  /* Ensure the background covers the card properly */
+  .card {
+    background-size: cover;
+    background-position: center;
+  }
+</style>
   </head>
   <body>
     <header>
@@ -15,27 +29,35 @@
         <a href="#">The Vibe Check</a>
         <a href="#">Destination</a>
         <a href="#">Explore</a>
+        <a href="{% url 'messenger' %}">Messenger</a> <span>Namaste, {{ user.username }}</span>
         <button class="nav-btn" onclick="location.href='{% url 'survey' %}'">
           Design Your Journey
         </button>
       </nav>
       <nav>
-    <a href="{% url 'home' %}">Home</a>
-    <span>Namaste, {{ user.username }}</span>
-    
-    <form action="{% url 'logout' %}" method="post" style="display: inline;">
-        {% csrf_token %}
-        <button type="submit" style="cursor: pointer; background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 4px;">
+        <a href="{% url 'home' %}">Home</a>
+        <span>Namaste, {{ user.username }}</span>
+
+        <form action="{% url 'logout' %}" method="post" style="display: inline">
+          {% csrf_token %}
+          <button
+            type="submit"
+            style="
+              cursor: pointer;
+              background: #e74c3c;
+              color: white;
+              border: none;
+              padding: 5px 10px;
+              border-radius: 4px;
+            "
+          >
             Logout
-        </button>
-    </form>
-</nav>
+          </button>
+        </form>
+      </nav>
     </header>
 
     <main class="hero">
-
-    
- 
       <div class="hero-content">
         <p class="tagline">Discover Nepal with feelings.</p>
         <h1 id="hero-title">MOUNT EVEREST</h1>
@@ -43,46 +65,15 @@
         <button class="explore-btn">Explore more</button>
       </div>
 
-      <div class="carousel-container">
-        <div class="carousel">
-          <div
-            class="card active"
-            data-title="MOUNT EVEREST"
-            style="
-              background-image: url('{% static 'app/assets/images/everestmain.jpg' %}');
-            "
-          ></div>
-          <div
-            class="card"
-            data-title="SWAYAMBHUNATH"
-            style="
-              background-image: url('{% static 'app/assets/images/buddhanath.jpg' %}');
-            "
-          ></div>
-          <div
-            class="card"
-            data-title="ANNAPURNA"
-            style="
-              background-image: url('{% static 'app/assets/images/annapurna.jpg' %}');
-            "
-          ></div>
-          <div
-            class="card"
-            data-title="PASHUPATINATH"
-            style="
-              background-image: url('{% static 'app/assets/images/Pashupatinath Temple.jpeg' %}');
-            "
-            
-          ></div>
-          <div
-            class="card"
-            data-title="LUMBINI"
-            style="
-              background-image: url('{% static 'app/assets/images/lumbini1.jpg' %}');
-            "
-          ></div>
-        </div>
-      </div>
+     <div class="carousel-container">
+  <div class="carousel">
+    <div class="card active card-everest" data-title="MOUNT EVEREST"></div>
+    <div class="card card-swayambhu" data-title="SWAYAMBHUNATH"></div>
+    <div class="card card-annapurna" data-title="ANNAPURNA"></div>
+    <div class="card card-pashupati" data-title="PASHUPATINATH"></div>
+    <div class="card card-lumbini" data-title="LUMBINI"></div>
+  </div>
+</div>
     </main>
 
     <section class="about-section">

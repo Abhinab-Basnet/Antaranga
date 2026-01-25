@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Antaranga | Messenger</title>
+    <style>
+        /* Your CSS Styles here (Keep the ones you provided) */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: sans-serif; background: #f5f5f5; }
+        .chat-container { max-width: 1000px; margin: 20px auto; background: white; height: 80vh; display: flex; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; }
+        .conversations-list { width: 300px; border-right: 1px solid #e0e0e0; background: #fafafa; display: flex; flex-direction: column; }
+        .conversations-header { padding: 20px; background: #075e54; color: white; font-weight: bold; }
+        .conversation-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; text-decoration: none; color: black; display: block; }
+        .conversation-item:hover { background: #f0f0f0; }
+        .conversation-item.active { background: #e8f5e9; border-left: 5px solid #075e54; }
+        .chat-area { flex: 1; display: flex; flex-direction: column; }
+        .chat-header { padding: 20px; background: #075e54; color: white; font-weight: bold; }
+        .messages-area { flex: 1; padding: 20px; overflow-y: auto; background: #e5ddd5; display: flex; flex-direction: column; }
+        .message { margin-bottom: 10px; display: flex; }
+        .message.sent { justify-content: flex-end; }
+        .message-bubble { max-width: 70%; padding: 10px; border-radius: 8px; position: relative; font-size: 14px; }
+        .message.received .message-bubble { background: white; }
+        .message.sent .message-bubble { background: #dcf8c6; }
+        .message-input-area { padding: 15px; background: #f0f0f0; display: flex; gap: 10px; }
+        .message-input { flex: 1; padding: 10px; border-radius: 20px; border: 1px solid #ddd; outline: none; }
+        .send-button { background: #075e54; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; }
+    </style>
+    <header>
+    <a href="{% url 'home' %}" style="border: 2px solid white; padding: 5px 15px; border-radius: 20px;">Return</a>
+<div class="conversations-header">
+    <span style="display:block; margin-bottom:5px;">Your Vibes</span>
+    <select onchange="location.href='?cluster=' + this.value;" style="width: 100%; padding: 5px; background: #064e47; color: white; border: 1px solid #053e37; border-radius: 4px;">
+        {% for cid in unlocked_clusters %}
+            <option value="{{ cid }}" {% if cid == current_cluster %}selected{% endif %}>
+                Vibe #{{ cid }} {% if cid == 1 %}(Mountains){% elif cid == 2 %}(Culture){% endif %}
+            </option>
+        {% empty %}
+            <option>No Vibes Unlocked</option>
+        {% endfor %}
+    </select>
+</div>
+</header>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="conversations-list">
+            <div class="conversations-header">Travelers in Cluster #{{ my_cluster }}</div>
+            {% for match in matches %}
+            <a href="{% url 'messenger_with_user' match.user.username %}" 
+               class="conversation-item {% if active_chat_user == match.user %}active{% endif %}">
+                <div style="font-weight: bold;">{{ match.user.username }}</div>
+                <div style="font-size: 12px; color: #666;">Match found via Oracle</div>
+            </a>
+            {% empty %}
+            <div style="padding: 20px; color: #999;">No matches found yet.</div>
+            {% endfor %}
+        </div>
+
+        <div class="chat-area">
+            {% if active_chat_user %}
+                <div class="chat-header">Chatting with {{ active_chat_user.username }}</div>
+                <div class="messages-area" id="msgBox">
+                    {% for msg in chat_history %}
+                    <div class="message {% if msg.sender == request.user %}sent{% else %}received{% endif %}">
+                        <div class="message-bubble">
+                            {{ msg.content }}
+                            <div style="font-size: 9px; color: #888; text-align: right;">{{ msg.timestamp|date:"H:i" }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <form method="POST" class="message-input-area">
+                    {% csrf_token %}
+                    <input type="text" name="content" class="message-input" placeholder="Type a message..." required>
+                    <button type="submit" class="send-button">Send</button>
+                </form>
+            {% else %}
+                <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #999;">
+                    Select a travel buddy to start chatting
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // Auto scroll to bottom
+        var objDiv = document.getElementById("msgBox");
+        if(objDiv) objDiv.scrollTop = objDiv.scrollHeight;
+    </script>
+</body>
+</html>

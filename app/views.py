@@ -1,31 +1,26 @@
-from django.shortcuts import render, redirect
-from .utils import get_recommendations
-from .models import Location 
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.contrib.auth import login, logout as auth_logout
+from django.contrib.auth.forms import UserCreationForm
+from django.db.models import Q
+from django.urls import reverse
 
+from .models import Location, UserProfile, Message, ClusterHistory
+from .utils import get_recommendations
 
-
-# 1. ADD THIS BACK: Landing Page View
 @login_required
 def home(request):
-    """Renders the main Antaranga landing page."""
     return render(request, 'app/index.html')
 
-# 2. ADD THIS BACK: Survey Form View
 @login_required
 def survey(request):
-    """Renders the survey page."""
     return render(request, 'app/survey.html')
 
-# 3. K-Means Logic & Results View
 @login_required
 def recommend(request):
-    """Processes survey data and returns clustered recommendations."""
     if request.method == "POST":
         try:
-            # 1. Aggregate the slider data
             nature = (int(request.POST.get('nature_forests', 5)) + 
                       int(request.POST.get('nature_wildlife', 5)) + 
                       int(request.POST.get('nature_lakes', 5))) / 3
@@ -44,10 +39,14 @@ def recommend(request):
 
             user_input = [nature, adventure, culture, altitude]
             
-            # 2. Get recommendations from K-Means
             recommendations, cluster_id = get_recommendations(user_input)
+
+            profile, created = UserProfile.objects.get_or_create(user=request.user)
+            profile.cluster_id = cluster_id
+            profile.save()
             
-            # 3. THE IMAGE MAP
+            ClusterHistory.objects.get_or_create(user=request.user, cluster_id=cluster_id)
+            
             image_map = {
                 'Everest Base Camp': 'app/assets/images/ebc.jpg',
                 'Pokhara (Lakeside)': 'app/assets/images/pokhara.jpg',
@@ -71,7 +70,6 @@ def recommend(request):
                 'Bardia National Park': 'app/assets/images/bardia.jpg',
             }
 
-            # 4. Attach image paths to the results
             for loc in recommendations:
                 loc.manual_image = image_map.get(loc.name, 'app/assets/images/default.jpg')
             
@@ -81,21 +79,61 @@ def recommend(request):
             })
 
         except Exception as e:
-            print(f"Error in recommendation logic: {e}")
             return redirect('survey')
     
     return redirect('survey')
 
+@login_required
+def messenger(request, username=None):
+    unlocked_clusters = ClusterHistory.objects.filter(user=request.user).values_list('cluster_id', flat=True).distinct()
+    
+    current_selected_cluster = request.GET.get('cluster')
+    
+    if not current_selected_cluster:
+        user_profile, _ = UserProfile.objects.get_or_create(user=request.user)
+        current_selected_cluster = user_profile.cluster_id
+    
+    matches = []
+    if current_selected_cluster is not None:
+        matches = UserProfile.objects.filter(
+            cluster_id=current_selected_cluster
+        ).exclude(user=request.user)
 
+    active_chat_user = None
+    chat_history = []
 
-# This is our signup logic
+    if username:
+        active_chat_user = get_object_or_404(User, username=username)
+        chat_history = Message.objects.filter(
+            (Q(sender=request.user) & Q(receiver=active_chat_user)) |
+            (Q(sender=active_chat_user) & Q(receiver=request.user))
+        ).order_by('timestamp')
+
+    if request.method == "POST" and active_chat_user:
+        msg_content = request.POST.get('content')
+        if msg_content:
+            Message.objects.create(sender=request.user, receiver=active_chat_user, content=msg_content)
+            url = reverse('messenger_with_user', kwargs={'username': username})
+            if current_selected_cluster is not None:
+                url += f"?cluster={current_selected_cluster}"
+            return redirect(url)
+
+    return render(request, 'app/chat.html', {
+        'matches': matches,
+        'unlocked_clusters': unlocked_clusters,
+        'current_cluster': int(current_selected_cluster) if current_selected_cluster else None,
+        'active_chat_user': active_chat_user,
+        'chat_history': chat_history,
+    })
 def signup_view(request):
     if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()  # Saves user to MySQL ANTARANGA.auth_user
-            login(request, user)  # Starts the Session
-            return redirect('home')  # Send to landing page after signup
+            if request.user.is_authenticated:
+                auth_logout(request)
+            user = form.save()
+            login(request, user)
+            return redirect('home')
     else:
         form = UserCreationForm()
     return render(request, 'app/signup.html', {'form': form})
