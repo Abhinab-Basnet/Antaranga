@@ -1,7 +1,8 @@
-from django.shortcuts import render, redirect, Http404
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
 from .utils import get_recommendations
 from .models import Location 
-from .data import DESTINATIONS  # Import the new dictionary from data.py
+from .data import DESTINATIONS  # The file we perfected earlier
 
 # 1. Landing Page View
 def home(request):
@@ -13,7 +14,22 @@ def survey(request):
     """Renders the survey page."""
     return render(request, 'app/survey.html')
 
-# 3. K-Means Logic & Results View
+# 3. Destination Detail View (THE ORACLE PAGE)
+def detail(request, destination_slug):
+    """
+    Renders the specialized big orange typography page.
+    It fetches data from the hardcoded DESTINATIONS dictionary 
+    using a slug (e.g., 'pokharalakeside').
+    """
+    place = DESTINATIONS.get(destination_slug)
+    if not place:
+        # Fallback if slug isn't in data.py
+        return render(request, '404.html', status=404)
+        
+    return render(request, 'app/detail.html', {'place': place})
+
+# 4. K-Means Logic & Results View
+@login_required
 def recommend(request):
     """Processes survey data and returns clustered recommendations."""
     if request.method == "POST":
@@ -42,31 +58,25 @@ def recommend(request):
             
             # Image Map (Matches the names in your Database/Model)
             image_map = {
-                'Everest Base Camp': 'app/assets/images/ebc.jpg',
-                'Pokhara (Lakeside)': 'app/assets/images/rara.jpeg',
-                'Kathmandu Durbar Square': 'app/assets/images/kds.jpeg',
-                'Chitwan National Park': 'app/assets/images/chitwan.jpeg',
-                'Lumbini (Birthplace of Buddha)': 'app/assets/images/lumbini.jpg',
-                'Annapurna Base Camp': 'app/assets/images/annapurna.jpg',
-                'Bhaktapur Durbar Square': 'app/assets/images/bds.jpeg',
-                'Nagarkot (Sunrise View)': 'app/assets/images/nagarkot.jpeg',
-                'Rara Lake': 'app/assets/images/rara.jpeg',
-                'Muktinath Temple': 'app/assets/images/kds.jpg',
-                'Ghorepani Poon Hill': 'app/assets/images/poon.jpeg',
-                'Janakpur (Janaki Temple)': 'app/assets/images/janaki.jpeg',
-                'Bandipur Village': 'app/assets/images/bandipur.jpeg',
-                'Langtang Valley': 'app/assets/images/langtang.jpeg',
-                'Manaslu Circuit': 'app/assets/images/manaslucircuit.jpeg',
-                'Ilam (Tea Gardens)': 'app/assets/images/ilam.jpeg',
-                'Upper Mustang (Lo Manthang)': 'app/assets/images/mustang.jpeg',
-                'Gosaikunda Lake': 'app/assets/images/gosaikunda.jpeg',
-                'Patan Durbar Square': 'app/assets/images/pds.jpeg',
-                'Bardia National Park': 'app/assets/images/bardiya.jpeg',
+                'Everest Base Camp': 'app/assets/images/ebc_hero.jpg',
+                'Pokhara (Lakeside)': 'app/assets/images/annapurna.jpg',
+                'Bandipur Village': 'app/assets/images/bandipur_hero.jpg',
+                'Ilam (Tea Gardens)': 'app/assets/images/ilam_hero.jpg',
+                # ... add others as needed
             }
 
-            # Attach image paths to the results
+            # Link Results to Slugs for the Detail Page
+            slug_map = {
+                'Everest Base Camp': 'everestbasecamp',
+                'Pokhara (Lakeside)': 'pokharalakeside',
+                'Bandipur Village': 'bandipur-village',
+                'Ilam (Tea Gardens)': 'ilam-tea-gardens',
+            }
+
             for loc in recommendations:
                 loc.manual_image = image_map.get(loc.name, 'app/assets/images/default.jpg')
+                # We attach the slug so the 'View Details' button knows where to go
+                loc.target_slug = slug_map.get(loc.name, '#')
             
             return render(request, 'app/results.html', {
                 'locations': recommendations,
@@ -78,20 +88,3 @@ def recommend(request):
             return redirect('survey')
     
     return redirect('survey')
-
-# 4. NEW: Destination Detail View
-def destination_detail(request, place_slug):
-    """Fetches detailed info from data.py based on the URL slug."""
-    
-    # We clean the slug (e.g., 'mount-everest' -> 'mounteverest') 
-    # to match the keys in your data.py
-    clean_key = place_slug.lower().replace('-', '')
-    
-    # Fetch from the DESTINATIONS dictionary in data.py
-    place = DESTINATIONS.get(clean_key)
-    
-    if not place:
-        # If the place is not in your data.py yet, you can show a 404 or a fallback
-        raise Http404("This soul sanctuary is still being mapped by the Oracle.")
-        
-    return render(request, 'app/detail.html', {'place': place})

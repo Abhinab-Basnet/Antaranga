@@ -62,7 +62,7 @@ DATABASES = {
         'NAME': 'ANTARANGA',
         'USER': 'root',
         'PASSWORD': 'Abhinab@1234',
-        'HOST': '127.0.0.1', 
+        'HOST': 'localhost',
         'PORT': '3306',
     }
 }
@@ -80,3 +80,6 @@ STATICFILES_DIRS = [
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'login'
