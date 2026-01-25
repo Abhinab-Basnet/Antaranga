@@ -5,9 +5,12 @@ from django.contrib.auth import login, logout as auth_logout
 from django.contrib.auth.forms import UserCreationForm
 from django.db.models import Q
 from django.urls import reverse
+from django.utils.text import slugify
 
+# Import your models and the dictionary
 from .models import Location, UserProfile, Message, ClusterHistory
 from .utils import get_recommendations
+from .data import DESTINATIONS  # <--- CRITICAL: Import your rich data
 
 @login_required
 def home(request):
@@ -17,21 +20,32 @@ def home(request):
 def survey(request):
     return render(request, 'app/survey.html')
 
-def detail(request, name):
-    # This replaces the dash '-' with a space and searches the database
-    # Example: 'pokhara-lakeside' becomes 'Pokhara Lakeside'
-    formatted_name = name.replace('-', ' ')
-    
-    # We use get_object_or_404 so if it's not found, it shows a clean error page
-    destination = get_object_or_404(Location, name__iexact=formatted_name)
-    
-    return render(request, 'app/destination_detail.html', {
-        'location': destination
-    })
+def detail(request, destination_slug):
+    """
+    Renders the detail page using the rich data from data.py.
+    The slug from the URL (e.g., 'everestbasecamp') must match the 
+    keys in the DESTINATIONS dictionary.
+    """
+    # 1. Try to get data from the dictionary first
+    # We remove dashes because your data.py keys are 'everestbasecamp' not 'everest-base-camp'
+    lookup_key = destination_slug.replace('-', '')
+    place_data = DESTINATIONS.get(lookup_key)
+
+    if not place_data:
+        # 2. Fallback: If not in dictionary, try a direct match
+        place_data = DESTINATIONS.get(destination_slug)
+
+    if not place_data:
+        # 3. Last Resort: 404 if it's not in data.py at all
+        return render(request, '404.html', status=404)
+        
+    return render(request, 'app/detail.html', {'place': place_data})
+
 @login_required
 def recommend(request):
     if request.method == "POST":
         try:
+            # Gather Score Data
             nature = (int(request.POST.get('nature_forests', 5)) + 
                       int(request.POST.get('nature_wildlife', 5)) + 
                       int(request.POST.get('nature_lakes', 5))) / 3
@@ -52,32 +66,28 @@ def recommend(request):
             
             recommendations, cluster_id = get_recommendations(user_input)
 
-            profile, created = UserProfile.objects.get_or_create(user=request.user)
+            profile, _ = UserProfile.objects.get_or_create(user=request.user)
             profile.cluster_id = cluster_id
             profile.save()
-            
             ClusterHistory.objects.get_or_create(user=request.user, cluster_id=cluster_id)
             
-            image_map = {
-                'Everest Base Camp': 'app/assets/images/ebc_hero.jpg',
-                'Pokhara (Lakeside)': 'app/assets/images/annapurna.jpg',
-                'Bandipur Village': 'app/assets/images/bandipur_hero.jpg',
-                'Ilam (Tea Gardens)': 'app/assets/images/ilam_hero.jpg',
-                # ... add others as needed
-            }
-
-            # Link Results to Slugs for the Detail Page
+            # Use specific slug mapping to match data.py keys exactly
             slug_map = {
                 'Everest Base Camp': 'everestbasecamp',
                 'Pokhara (Lakeside)': 'pokharalakeside',
-                'Bandipur Village': 'bandipur-village',
-                'Ilam (Tea Gardens)': 'ilam-tea-gardens',
+                'Bandipur Village': 'bandipurvillage',
+                'Ilam (Tea Gardens)': 'ilamteagardens',
             }
 
             for loc in recommendations:
-                loc.manual_image = image_map.get(loc.name, 'app/assets/images/default.jpg')
-                # We attach the slug so the 'View Details' button knows where to go
-                loc.target_slug = slug_map.get(loc.name, '#')
+                # We use the slug_map so the button links match data.py keys
+                loc.target_slug = slug_map.get(loc.name, slugify(loc.name).replace('-', ''))
+                
+                # Image fallback: check if it exists in data.py, else use default
+                if loc.target_slug in DESTINATIONS:
+                    loc.manual_image = DESTINATIONS[loc.target_slug].get('hero_image')
+                else:
+                    loc.manual_image = 'app/assets/images/default.jpg'
             
             return render(request, 'app/results.html', {
                 'locations': recommendations,
@@ -85,6 +95,7 @@ def recommend(request):
             })
 
         except Exception as e:
+            print(f"Error: {e}")
             return redirect('survey')
     
     return redirect('survey')
@@ -92,18 +103,20 @@ def recommend(request):
 @login_required
 def messenger(request, username=None):
     unlocked_clusters = ClusterHistory.objects.filter(user=request.user).values_list('cluster_id', flat=True).distinct()
+    cluster_param = request.GET.get('cluster')
     
-    current_selected_cluster = request.GET.get('cluster')
-    
-    if not current_selected_cluster:
+    if not cluster_param:
         user_profile, _ = UserProfile.objects.get_or_create(user=request.user)
         current_selected_cluster = user_profile.cluster_id
+    else:
+        try:
+            current_selected_cluster = int(cluster_param)
+        except ValueError:
+            current_selected_cluster = None
     
     matches = []
     if current_selected_cluster is not None:
-        matches = UserProfile.objects.filter(
-            cluster_id=current_selected_cluster
-        ).exclude(user=request.user)
+        matches = UserProfile.objects.filter(cluster_id=current_selected_cluster).exclude(user=request.user)
 
     active_chat_user = None
     chat_history = []
@@ -127,10 +140,11 @@ def messenger(request, username=None):
     return render(request, 'app/chat.html', {
         'matches': matches,
         'unlocked_clusters': unlocked_clusters,
-        'current_cluster': int(current_selected_cluster) if current_selected_cluster else None,
+        'current_cluster': current_selected_cluster,
         'active_chat_user': active_chat_user,
         'chat_history': chat_history,
     })
+
 def signup_view(request):
     if request.method == "POST":
         form = UserCreationForm(request.POST)
