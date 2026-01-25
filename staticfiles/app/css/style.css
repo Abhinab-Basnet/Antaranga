@@ -1,0 +1,467 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Jaini&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+    font-family: 'Jaini', cursive; 
+}
+
+
+html {
+    scroll-behavior: smooth;
+}
+
+body { 
+    background: #000; 
+    color: white; 
+    overflow-x: hidden; 
+    width: 100%;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 50px;
+    background: crimson;
+    border: 4px solid blue;
+
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.logo { 
+    font-size: 2rem; 
+    font-weight: bold; 
+    letter-spacing: 2px; 
+}
+
+nav a { 
+    color: white; 
+    text-decoration: none;
+    margin: 0 15px; 
+    font-weight: 500; 
+    font-size: 1.2rem;
+}
+
+.nav-btn {
+    background: url('/static/app/assets/images/Pattern.jpeg');
+    background-size: cover;
+    color: white; 
+    border: 1px solid white;
+    padding: 5px 15px; 
+    border-radius: 20px; 
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+
+/* Hero Section */
+.hero {
+    height: 100vh;
+    background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('/static/app/assets/images/everestmain.jpg');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    padding: 0 100px;
+    position: relative; 
+}
+
+.hero-content h1 { 
+    font-size: 4rem; 
+    line-height: 1.2; 
+    margin: 10px 0; 
+}
+
+.tagline { 
+    font-size: 2.5rem;
+    font-style: italic; 
+   position: absolute;
+   top: 50px;
+    margin-bottom: 10px;
+}
+
+.sub-title {
+    font-size: 1.5rem;
+    font-style: italic; 
+}
+
+.explore-btn {
+    margin-top: 30px;
+    padding: 10px 40px;
+    border: 2px solid #fff;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+    background: url('/static/app/assets/images/Pattern.jpeg');
+    background-size: cover;
+    background-position: center;
+}
+
+/* Carousel Section */
+.carousel-container {
+    position: absolute;
+    right: 50px;
+    bottom: 25%; 
+    width: 45%;
+    height: 350px;
+    background-color: rgba(211, 29, 49, 0.4);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.carousel {
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+}
+
+.card {
+    width: 80px;
+    height: 200px;
+    border-radius: 15px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid rgba(255,255,255,0.3);
+}
+
+.card.active {
+    width: 140px; 
+    height: 310px;
+    border: 2px solid white;
+}
+
+/* aboutsection */
+.about-section {
+    background-color: #fdfbe6; 
+    padding: 100px 50px;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    color: #1a365d;
+    position: relative;
+    overflow: hidden;
+}
+
+.about-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 80px;
+}
+
+.about-image {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.mandala {
+    max-width: 100%;
+    height: auto;
+    animation: rotateMandala 120s linear infinite; 
+}
+
+@keyframes rotateMandala {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.about-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.about-text h2 {
+    font-size: 3.5rem;
+    color: #003366;
+    margin-bottom: 30px;
+    letter-spacing: 2px;
+}
+
+
+.about-cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.info-card {
+    background: rgba(255, 255, 255, 0.7);
+    padding: 20px 25px;
+    border-radius: 15px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    box-shadow: 5px 5px 15px rgba(0,0,0,0.05);
+    border-left: 5px solid #003366;
+    transition: all 0.4s ease;
+    opacity: 0; 
+    transform: translateY(20px);
+}
+
+.info-card:hover {
+    transform: scale(1.03);
+    background: #fff;
+    border-left-color: #DC143C; 
+}
+
+.card-icon-mini {
+    font-size: 1.5rem;
+    background: #fdfbe6;
+    padding: 10px;
+    border-radius: 50%;
+    box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1);
+}
+
+.card-content h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.3rem;
+    color: #003366;
+}
+
+.card-content p {
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    margin: 0 !important;
+    text-align: left !important;
+    color: #4a5568;
+}
+
+
+.about-icons {
+    display: flex;
+    gap: 30px;
+}
+
+.about-icons img {
+    height: 60px;
+    width: auto;
+    transition: transform 0.3s ease;
+}
+
+.about-icons img:hover {
+    transform: scale(1.2) rotate(5deg);
+}
+
+/* explore */
+
+
+/* --- PAGE 4 THEME: BRIGHT SANCTUARY --- */
+.oracle-trailer {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    background-color: #fdfbf7; /* Light Parchment */
+    overflow: hidden;
+}
+
+
+.wood-beam {
+    width: 100%;
+    height: 80px;
+    display: flex;
+    z-index: 100;
+    /* background: #2a1b0e; Dark Base */
+    box-shadow: 0 0 25px rgba(0,0,0,0.15);
+}
+
+.carving-module {
+    flex: 1;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: 1px solid rgba(255,255,255,0.03);
+}
+
+
+.top-style { 
+    background-image: url('/static/app/assets/images/bottommain.png'); 
+    background-size: auto;
+}
+.bottom-style { background-image: url('/static/app/assets/images/top.png'); background-size: auto; }
+
+
+
+
+/* .lokta-texture {
+    position: absolute;
+    inset: 0;
+    background-image: url('https://www.transparenttextures.com/patterns/handmade-paper.png');
+    opacity: 0.5;
+    pointer-events: none;
+} */
+
+.atmosphere-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(176, 141, 87, 0.1) 0%, transparent 70%);
+    transition: background 1.5s ease-out;
+    z-index: 1;
+}
+
+.watermark-svg {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 28rem;
+    color: #b08d57;
+    opacity: 0.06;
+    z-index: 2;
+    pointer-events: none;
+    transition: 0.8s ease-in-out;
+}
+
+
+.trailer-wrapper {
+    position: relative;
+    z-index: 10;
+    width: 80%;
+    max-width: 850px;
+    text-align: center;
+}
+
+.q-label {
+    display: block;
+    color: #b08d57;
+    letter-spacing: 5px;
+    margin-bottom: 25px;
+}
+
+h2 {
+    color: #2c2c2c;
+    font-size: 3rem;
+    line-height: 1.1;
+    margin-bottom: 45px;
+}
+
+
+.options { display: flex; justify-content: center; gap: 30px; }
+
+.nepal-btn {
+    background: #ffffff;
+    border: 2px solid #b08d57;
+    padding: 22px 40px;
+    cursor: pointer;
+    transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    min-width: 240px;
+}
+
+.nepal-btn:hover {
+    background: #b08d57;
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(176, 141, 87, 0.2);
+}
+
+.btn-text { display: block; font-size: 1.4rem; color: #1a1a1a; }
+.btn-sub { color: #b08d57; font-size: 0.9rem; }
+
+.nepal-btn:hover .btn-text,
+.nepal-btn:hover .btn-sub { color: #fff; }
+
+
+.q-frame { display: none; }
+.q-frame.active { display: block; animation: sanctuaryFadeIn 1s forwards; }
+
+@keyframes sanctuaryFadeIn {
+    from { opacity: 0; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.dot {
+    height: 12px; width: 12px;
+    background: #e0e0e0;
+    display: inline-block;
+    margin: 0 10px;
+    border-radius: 50%;
+    transition: 0.5s;
+}
+.dot.active { background: #b08d57; transform: scale(1.4); }
+
+.ritual-cta-btn {
+    position: relative;
+    display: inline-block;
+    margin-top: 20px;
+    padding: 20px 60px;
+    background: #1a1b1c; 
+    color: #b08d57; 
+    text-decoration: none;
+    font-size: 1.8rem;
+    border: 2px solid #b08d57;
+    border-radius: 2px;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+}
+
+
+.ritual-cta-btn:hover {
+    color: #ffffff;
+    background: #b08d57;
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 20px 40px rgba(176, 141, 87, 0.4);
+    letter-spacing: 3px;
+}
+
+
+.btn-shine {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        120deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.2), 
+        transparent
+    );
+    transition: 0.6s;
+}
+
+.ritual-cta-btn:hover .btn-shine {
+    left: 100%;
+}
+
+
+.ritual-icon.pulse {
+    font-size: 5rem;
+    margin-bottom: 20px;
+    display: inline-block;
+    animation: iconFloat 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 10px rgba(176, 141, 87, 0.3));
+}
+
+@keyframes iconFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+
+.ritual-text {
+    font-size: 1.3rem;
+    color: #444;
+    margin-bottom: 30px;
+    opacity: 0.8;
+}

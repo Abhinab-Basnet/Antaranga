@@ -17,6 +17,17 @@ def home(request):
 def survey(request):
     return render(request, 'app/survey.html')
 
+def detail(request, name):
+    # This replaces the dash '-' with a space and searches the database
+    # Example: 'pokhara-lakeside' becomes 'Pokhara Lakeside'
+    formatted_name = name.replace('-', ' ')
+    
+    # We use get_object_or_404 so if it's not found, it shows a clean error page
+    destination = get_object_or_404(Location, name__iexact=formatted_name)
+    
+    return render(request, 'app/destination_detail.html', {
+        'location': destination
+    })
 @login_required
 def recommend(request):
     if request.method == "POST":
@@ -48,30 +59,25 @@ def recommend(request):
             ClusterHistory.objects.get_or_create(user=request.user, cluster_id=cluster_id)
             
             image_map = {
-                'Everest Base Camp': 'app/assets/images/ebc.jpg',
-                'Pokhara (Lakeside)': 'app/assets/images/pokhara.jpg',
-                'Kathmandu Durbar Square': 'app/assets/images/kathmandu.jpg',
-                'Chitwan National Park': 'app/assets/images/chitwan.jpg',
-                'Lumbini (Birthplace of Buddha)': 'app/assets/images/lumbini.jpg',
-                'Annapurna Base Camp': 'app/assets/images/abc.jpg',
-                'Bhaktapur Durbar Square': 'app/assets/images/bhaktapur.jpg',
-                'Nagarkot (Sunrise View)': 'app/assets/images/nagarkot.jpg',
-                'Rara Lake': 'app/assets/images/rara.jpg',
-                'Muktinath Temple': 'app/assets/images/muktinath.jpg',
-                'Ghorepani Poon Hill': 'app/assets/images/poonhill.jpg',
-                'Janakpur (Janaki Temple)': 'app/assets/images/janakpur.jpg',
-                'Bandipur Village': 'app/assets/images/bandipur.jpg',
-                'Langtang Valley': 'app/assets/images/langtang.jpg',
-                'Manaslu Circuit': 'app/assets/images/manaslu.jpg',
-                'Ilam (Tea Gardens)': 'app/assets/images/ilam.jpeg',
-                'Upper Mustang (Lo Manthang)': 'app/assets/images/mustang.jpg',
-                'Gosaikunda Lake': 'app/assets/images/gosaikunda.jpg',
-                'Patan Durbar Square': 'app/assets/images/patan.jpg',
-                'Bardia National Park': 'app/assets/images/bardia.jpg',
+                'Everest Base Camp': 'app/assets/images/ebc_hero.jpg',
+                'Pokhara (Lakeside)': 'app/assets/images/annapurna.jpg',
+                'Bandipur Village': 'app/assets/images/bandipur_hero.jpg',
+                'Ilam (Tea Gardens)': 'app/assets/images/ilam_hero.jpg',
+                # ... add others as needed
+            }
+
+            # Link Results to Slugs for the Detail Page
+            slug_map = {
+                'Everest Base Camp': 'everestbasecamp',
+                'Pokhara (Lakeside)': 'pokharalakeside',
+                'Bandipur Village': 'bandipur-village',
+                'Ilam (Tea Gardens)': 'ilam-tea-gardens',
             }
 
             for loc in recommendations:
                 loc.manual_image = image_map.get(loc.name, 'app/assets/images/default.jpg')
+                # We attach the slug so the 'View Details' button knows where to go
+                loc.target_slug = slug_map.get(loc.name, '#')
             
             return render(request, 'app/results.html', {
                 'locations': recommendations,

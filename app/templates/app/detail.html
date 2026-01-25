@@ -4,125 +4,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antaranga | {{ place.name }}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>{{ place.name }} | Antaranga</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
     <style>
-        :root { --gold: #D4AF37; --dark: #0a0a0a; --glass: rgba(255, 255, 255, 0.05); }
-        body { background: var(--dark); color: white; font-family: 'Montserrat', sans-serif; margin: 0; overflow-x: hidden; }
-        
-        /* Hero Section */
-        .hero { 
-            height: 100vh; position: relative;
-            background: linear-gradient(rgba(0,0,0,0.5), var(--dark)), url('{{ place.image_url }}') center/cover no-repeat fixed;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+        :root {
+            --bg: #0d0d0d;
+            --accent: #ff4d00;
+            --panel: #161616;
+            --border: rgba(255, 255, 255, 0.08);
+            --text-dim: #888;
         }
-        .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(3rem, 10vw, 8rem); color: var(--gold); margin: 0; font-style: italic; }
-        
-        /* Stats Bar */
-        .stats-bar { 
-            display: flex; gap: 40px; background: var(--glass); backdrop-filter: blur(15px);
-            padding: 30px 60px; border-radius: 100px; border: 1px solid rgba(212, 175, 55, 0.3);
-            margin-top: -50px; z-index: 10;
+
+        * { box-sizing: border-box; }
+        body { margin: 0; background-color: var(--bg); color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; scroll-behavior: smooth; }
+
+        /* Tactical Back Button */
+        .back-btn {
+            position: fixed; top: 30px; left: 6%; z-index: 1000;
+            text-decoration: none; color: white; font-family: 'Oswald';
+            font-size: 0.75rem; letter-spacing: 2px; padding: 12px 25px;
+            background: rgba(0,0,0,0.6); border: 1px solid var(--border);
+            backdrop-filter: blur(20px); transition: 0.4s;
         }
-        .stat-item h4 { margin: 0; font-size: 0.7rem; color: var(--gold); letter-spacing: 2px; }
-        .stat-item p { margin: 5px 0 0; font-weight: bold; }
+        .back-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-        /* Main Container */
-        .container { max-width: 1200px; margin: 100px auto; padding: 0 20px; }
+        /* Full Screen Hero with BIG ORANGE TYPOGRAPHY */
+        .hero {
+            height: 100vh; position: relative; overflow: hidden;
+            display: flex; flex-direction: column; justify-content: flex-end;
+            padding: 0 6% 120px;
+        }
+        .hero-bg-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+        .hero-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to top, var(--bg) 15%, transparent 60%),
+                        linear-gradient(to right, rgba(0,0,0,0.85) 0%, transparent 80%);
+            z-index: -1;
+        }
+
+        .hero-title h1 { 
+            font-family: 'Oswald'; 
+            font-size: clamp(4rem, 14vw, 10.5rem); 
+            margin: 0; color: var(--accent); 
+            text-transform: uppercase; line-height: 0.8; letter-spacing: -4px; font-weight: 700;
+        }
         
-        /* Alternating Sections */
-        .row { display: flex; align-items: center; gap: 80px; margin-bottom: 150px; }
-        .row.reverse { flex-direction: row-reverse; }
-        .col-text { flex: 1; }
-        .col-img { flex: 1; }
-        .col-img img { width: 100%; height: 500px; object-fit: cover; border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1); }
+        .stat-row { display: flex; gap: 50px; margin-top: 40px; border-top: 1px solid var(--border); padding-top: 25px; }
+        .stat-box span { display: block; font-size: 0.65rem; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+        .stat-box p { font-family: 'Oswald'; font-size: 1.3rem; margin: 0; }
+
+        /* Content Grid */
+        .grid-container { display: grid; grid-template-columns: 1.2fr 1fr 0.8fr; gap: 60px; padding: 100px 6%; align-items: start; }
+        .label { color: var(--accent); font-family: 'Oswald'; font-size: 0.7rem; letter-spacing: 3px; display: block; margin-bottom: 15px; text-transform: uppercase; }
+        h2 { font-family: 'Oswald'; font-size: 2.6rem; text-transform: uppercase; margin: 0 0 20px; line-height: 1.1; }
+        .desc { color: var(--text-dim); font-size: 0.95rem; line-height: 1.9; margin-bottom: 40px; }
+
+        /* Gallery Image Sizing */
+        .img-box { border: 1px solid var(--border); background: var(--panel); overflow: hidden; margin-bottom: 30px; width: 100%; height: 320px; border-radius: 4px; }
+        .img-box img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.8); transition: 0.7s; }
+        .img-box:hover img { filter: brightness(1); transform: scale(1.05); }
+
+        /* Strategic Sidebar Cards */
+        .card { background: var(--panel); border: 1px solid var(--border); padding: 35px; margin-bottom: 30px; border-radius: 8px; }
         
-        h2 { font-family: 'Playfair Display', serif; font-size: 3.5rem; color: var(--gold); margin-bottom: 20px; }
-        p { font-size: 1.1rem; line-height: 1.8; color: #ccc; }
+        /* FIXED INTEL ITEM (Ideal Stay clashing fix) */
+        .intel-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.05); gap: 15px;
+        }
+        .intel-item span:first-child { color: var(--text-dim); font-size: 0.65rem; text-transform: uppercase; font-weight: 600; min-width: 90px; }
+        .intel-item span:last-child { font-size: 0.7rem; color: white; text-align: right; }
 
-        /* Chart Area */
-        .chart-container { background: var(--glass); padding: 30px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.05); }
+        /* Vibe Bars */
+        .vibe-row { margin-bottom: 20px; }
+        .bar-bg { height: 2px; background: #222; width: 100%; margin-top: 10px; }
+        .bar-fill { height: 100%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
 
-        /* Map */
-        .map-frame { width: 100%; height: 500px; border-radius: 30px; border: 1px solid var(--gold); filter: invert(90%) hue-rotate(180deg) brightness(0.7); }
+        .stay-link { display: flex; justify-content: space-between; padding: 18px 0; border-bottom: 1px solid var(--border); text-decoration: none; color: white; transition: 0.3s; font-size: 0.9rem; }
+        .stay-link:hover { color: var(--accent); padding-left: 10px; }
+
+        #big-map { height: 750px; width: 100%; background: #000 !important; border-top: 2px solid var(--accent); }
+
+        @media (max-width: 1200px) { .grid-container { grid-template-columns: 1fr; } .hero { height: 85vh; } }
     </style>
 </head>
 <body>
 
-    <section class="hero">
-        <p style="letter-spacing: 12px; color: var(--gold); font-weight: 300;">NEPAL UNVEILED</p>
-        <h1>{{ place.name }}</h1>
-        <div class="stats-bar">
-            <div class="stat-item"><h4>BEST SEASON</h4><p>{{ place.best_season }}</p></div>
-            <div class="stat-item"><h4>WEATHER</h4><p id="temp-display">2°C ({{ place.weather_city }})</p></div>
-            <div class="stat-item"><h4>ALTITUDE</h4><p>{{ place.altitude_score }} / 10</p></div>
-        </div>
-    </section>
+    <a href="javascript:history.back()" class="back-btn">← BACK TO ORACLE</a>
 
-    <div class="container">
-        <div class="row">
-            <div class="col-text">
-                <h2>The Vibe</h2>
-                <p>{{ place.history }}</p>
-                <div class="chart-container">
-                    <canvas id="vibeChart"></canvas>
+    <header class="hero">
+        <img src="{% static place.hero_image %}" class="hero-bg-img">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <span class="label" style="color: white; opacity: 0.6;">TERRAIN ANALYSIS / 0{{ place.id }}</span>
+            <h1>{{ place.name }}</h1>
+            
+            <div class="stat-row">
+                <div class="stat-box"><span>PEAK SEASON</span><p>{{ place.best_time }}</p></div>
+                <div class="stat-box"><span>CLIMATE</span><p>{{ place.temp }}</p></div>
+                <div class="stat-box"><span>ALTITUDE</span><p>{{ place.altitude }}</p></div>
+            </div>
+        </div>
+    </header>
+
+    <div class="grid-container">
+        <div class="col">
+            <span class="label">TRADITIONAL ROOTS</span>
+            <h2>Cultural<br>Heritage</h2>
+            <p class="desc">{{ place.culture }}</p> 
+            {% for img in place.tradition_imgs %}
+                <div class="img-box"><img src="{% static img %}"></div>
+            {% endfor %}
+        </div>
+
+        <div class="col">
+            <span class="label">SACRED PALATE</span>
+            <h2>Local<br>Cuisine</h2>
+            <p class="desc">{{ place.food }}</p>
+            {% for img in place.food_imgs %}
+                <div class="img-box"><img src="{% static img %}"></div>
+            {% endfor %}
+        </div>
+
+        <div class="col">
+            <div class="card">
+                <span class="label">DISCOVERY INTEL</span>
+                <div class="intel-item"><span>PRIMARY VIBE</span><span>{{ place.intel.vibe }}</span></div>
+                <div class="intel-item"><span>DIFFICULTY</span><span>{{ place.intel.difficulty }}</span></div>
+                <div class="intel-item"><span>IDEAL STAY</span><span>{{ place.intel.stay }}</span></div>
+                <div class="intel-item"><span>TRANSPORT</span><span>{{ place.intel.transport }}</span></div>
+            </div>
+
+            <div class="card">
+                <span class="label">VIBE ANALYSIS</span>
+                <div class="vibe-row">
+                    <div style="display:flex; justify-content:space-between; font-size:0.7rem;"><span>ADVENTURE</span><span>{{ place.radar_data.0 }}%</span></div>
+                    <div class="bar-bg"><div class="bar-fill" style="width: {{ place.radar_data.0 }}%;"></div></div>
+                </div>
+                <div class="vibe-row">
+                    <div style="display:flex; justify-content:space-between; font-size:0.7rem;"><span>NATURE</span><span>{{ place.radar_data.1 }}%</span></div>
+                    <div class="bar-bg"><div class="bar-fill" style="width: {{ place.radar_data.1 }}%;"></div></div>
+                </div>
+                <div class="vibe-row">
+                    <div style="display:flex; justify-content:space-between; font-size:0.7rem;"><span>CULTURE</span><span>{{ place.radar_data.2 }}%</span></div>
+                    <div class="bar-bg"><div class="bar-fill" style="width: {{ place.radar_data.2 }}%;"></div></div>
                 </div>
             </div>
-            <div class="col-img"><img src="{{ place.history_img }}"></div>
-        </div>
 
-        <div class="row reverse">
-            <div class="col-text">
-                <h2>Tradition</h2>
-                <p>{{ place.culture_tradition }}</p>
-                <div style="background: rgba(212, 175, 55, 0.1); padding: 20px; border-left: 4px solid var(--gold); margin-top: 20px;">
-                    <strong>Supervisor's Highlight:</strong> Exploring the deep cultural clusters found via K-Means.
-                </div>
+            <div class="card">
+                <span class="label">SANCTUARIES</span>
+                {% for hotel in place.hotels %}
+                    <a href="{{ hotel.link }}" target="_blank" class="stay-link">
+                        {{ hotel.name }} <span>→</span>
+                    </a>
+                {% endfor %}
             </div>
-            <div class="col-img"><img src="{{ place.culture_img }}"></div>
-        </div>
 
-        <div class="row">
-            <div class="col-text">
-                <h2>Authentic Taste</h2>
-                <p>{{ place.local_food }}</p>
-                <p><strong>Must Try:</strong> {{ place.highlights }}</p>
-            </div>
-            <div class="col-img"><img src="{{ place.food_img }}"></div>
+            <span class="label">CHRONICLES</span>
+            <p class="desc" style="font-size: 0.85rem;">{{ place.about }}</p>
         </div>
-
-        <h2 style="text-align: center; margin-bottom: 50px;">Navigate the Journey</h2>
-        <iframe class="map-frame" src="{{ place.map_embed_url }}" allowfullscreen="" loading="lazy"></iframe>
     </div>
 
+    <div id="big-map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        const ctx = document.getElementById('vibeChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'radar',
-            data: {
-                labels: ['Nature', 'Adventure', 'Culture', 'Altitude'],
-                datasets: [{
-                    label: 'Scores',
-                    data: [{{ place.nature_score }}, {{ place.adventure_score }}, {{ place.culture_score }}, {{ place.altitude_score }}],
-                    backgroundColor: 'rgba(212, 175, 55, 0.3)',
-                    borderColor: '#D4AF37',
-                    borderWidth: 2,
-                    pointBackgroundColor: '#fff'
-                }]
-            },
-            options: {
-                scales: {
-                    r: {
-                        grid: { color: 'rgba(255,255,255,0.1)' },
-                        angleLines: { color: 'rgba(255,255,255,0.1)' },
-                        pointLabels: { color: '#fff', font: { size: 14 } },
-                        ticks: { display: false }
-                    }
-                },
-                plugins: { legend: { display: false } }
-            }
+        var map = L.map('big-map', { center: {{ place.lat_long|safe }}, zoom: 14, zoomControl: false, scrollWheelZoom: false });
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+        
+        var customIcon = L.divIcon({
+            className: 'marker',
+            html: `<div style="width: 22px; height: 22px; background: #ff4d00; border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 20px #ff4d00;"></div>`
         });
+        L.marker({{ place.lat_long|safe }}, {icon: customIcon}).addTo(map);
     </script>
 </body>
 </html>

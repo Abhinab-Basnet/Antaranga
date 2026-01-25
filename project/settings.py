@@ -6,26 +6,23 @@ import pymysql
 pymysql.version_info = (2, 2, 1, "final", 0)
 pymysql.install_as_MySQLdb()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# BASE_DIR points to: D:\kmeans practice\kmeans-master
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-f5+a_5!h*zqo70*yv1o)skqi9zlaqgbu#&u6398g-&6l84kuki'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True  # Static files serve automatically when True
 
 ALLOWED_HOSTS = []
 
-# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'app',  # Your application
+    'django.contrib.staticfiles', # Essential for serving CSS/JS
+    'app',
 ]
 
 MIDDLEWARE = [
@@ -43,8 +40,7 @@ ROOT_URLCONF = 'project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # Correctly points to your app/templates folder
-        'DIRS': [os.path.join(BASE_DIR, 'app', 'templates')], 
+        'DIRS': [BASE_DIR / 'app' / 'templates'], 
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -59,7 +55,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'project.wsgi.application'
 
-# Database configuration for MySQL
+# Database: Changed 'localhost' to '127.0.0.1' to fix the slow loading bug
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -71,32 +67,18 @@ DATABASES = {
     }
 }
 
-# Password validation
-AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',},
-]
-
-# Internationalization
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
-USE_I18N = True
-USE_TZ = True
-
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
 
-# IMPORTANT: This tells Django where to look for images in your development environment
+# Corrected STATICFILES_DIRS to match your project root 'static' folder
+# This removes the W004 warning by pointing to the correct existing path
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'app', 'static'),
+    BASE_DIR / "static",
 ]
 
-# This is used for production when you run collectstatic
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# Path where collectstatic will gather files for production
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'

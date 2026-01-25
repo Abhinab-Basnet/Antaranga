@@ -13,4 +13,5 @@ urlpatterns = [
     # ADD THESE TWO LINES
     path('messenger/', views.messenger, name='messenger'),
     path('messenger/<str:username>/', views.messenger, name='messenger_with_user'),
+    path('destination/<slug:destination_slug>/', views.detail, name='detail'),
 ]
