@@ -80,10 +80,10 @@ def recommend(request):
             }
 
             for loc in recommendations:
-                # We use the slug_map so the button links match data.py keys
+                
                 loc.target_slug = slug_map.get(loc.name, slugify(loc.name).replace('-', ''))
                 
-                # Image fallback: check if it exists in data.py, else use default
+                
                 if loc.target_slug in DESTINATIONS:
                     loc.manual_image = DESTINATIONS[loc.target_slug].get('hero_image')
                 else:

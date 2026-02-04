@@ -22,7 +22,7 @@
             scroll-behavior: smooth;
         }
 
-        /* --- Header --- */
+        
         header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 10px 40px; background: var(--crimson);
@@ -32,7 +32,7 @@
         .logo { font-family: 'Jaini', cursive; font-size: 1.8rem; color: white; }
         nav a { color: white; text-decoration: none; margin-left: 20px; font-weight: 600; font-size: 0.85rem; }
 
-        /* --- SECTION 1: THE ORACLE --- */
+        
         .oracle-section {
             height: 100vh;
             display: flex; flex-direction: column;
@@ -78,7 +78,7 @@
             color: #ccc; letter-spacing: 2px; font-weight: 800;
         }
 
-        /* --- SECTION 2: FULL LIST GRID --- */
+        
         .list-section {
             padding: 100px 10%; background: white;
             min-height: 100vh;
@@ -183,7 +183,7 @@
         const panelCount = panels.length;
         const theta = 360 / panelCount;
 
-        // Position cards in a tight circle (translateZ 300px)
+        
         panels.forEach((panel, i) => {
             const panelRotation = i * theta;
             panel.style.transform = `rotateY(${panelRotation}deg) translateZ(300px)`;
