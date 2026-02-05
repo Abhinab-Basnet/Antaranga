@@ -1,38 +1,90 @@
-import pandas as pd
+import random
 import numpy as np
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
 from .models import Location
 
-def get_recommendations(user_input, k=4):
-    queryset = Location.objects.all()
-    
-    if queryset.count() < k:
-        return queryset, 0 
+def euclidean_distance(a, b):
+    """Compute Euclidean distance between two points"""
+    return np.linalg.norm(np.array(a) - np.array(b))
 
-    # Convert to DataFrame
-    df = pd.DataFrame(list(queryset.values(
-        'id', 'nature_score', 'adventure_score', 'culture_score', 'altitude_score'
-    )))
-    
-    features = ['nature_score', 'adventure_score', 'culture_score', 'altitude_score']
-    
-    # Scale and Cluster
-    scaler = StandardScaler()
-    scaled_data = scaler.fit_transform(df[features])
-    
-    kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
-    df['cluster'] = kmeans.fit_predict(scaled_data)
-    
-    # Predict User's Cluster
-    user_input_array = np.array(user_input).reshape(1, -1)
-    scaled_user = scaler.transform(user_input_array)
-    predicted_cluster = kmeans.predict(scaled_user)[0]
-    
-    # Filter unique IDs
-    recommended_ids = df[df['cluster'] == predicted_cluster]['id'].tolist()
-    
-    # .distinct() ensures Pokhara won't repeat!
-    recommendations = Location.objects.filter(id__in=recommended_ids).distinct()[:6]
-    
-    return recommendations, predicted_cluster
+def kmeans_manual(data, k=4, max_iter=100):
+    #  Randomly initialize k centroids
+    centroids = random.sample(data, k)
+    for iteration in range(max_iter):
+        clusters = [[] for _ in range(k)]
+        #  Assign each point to nearest centroid
+        for point in data:
+            distances = [euclidean_distance(point, c) for c in centroids]
+            cluster_idx = distances.index(min(distances))
+            clusters[cluster_idx].append(point)
+        #  Recompute centroids
+        new_centroids = []
+        for cluster_points in clusters:
+            if cluster_points:
+                cluster_mean = np.mean(cluster_points, axis=0).tolist()
+            else:
+                # If cluster empty, pick a random point as centroid
+                cluster_mean = random.choice(data)
+            new_centroids.append(cluster_mean)
+        #  Check for convergence
+        if np.allclose(new_centroids, centroids):
+            break
+        centroids = new_centroids
+    #  Final assignment
+    final_assignments = []
+    for point in data:
+        distances = [euclidean_distance(point, c) for c in centroids]
+        cluster_idx = distances.index(min(distances))
+        final_assignments.append(cluster_idx)
+    return final_assignments, centroids
+
+
+def get_recommendations(user_input, k=4):
+
+    #  Fetch all locations
+    queryset = Location.objects.all()
+    if queryset.count() < k:
+        return None, None
+
+    #  Convert DB data to list
+    data_points = []
+    ids = []
+    for loc in queryset:
+        data_points.append([
+            loc.nature_score,
+            loc.adventure_score,
+            loc.culture_score,
+            loc.altitude_score
+        ])
+        ids.append(loc.id)
+
+    #  Apply manual K-Means
+    cluster_assignments, centroids = kmeans_manual(data_points, k=k)
+
+    #  Save cluster_id to DB
+    for loc_id, cluster_id in zip(ids, cluster_assignments):
+        Location.objects.filter(id=loc_id).update(cluster_id=int(cluster_id))
+
+    # Predict user cluster
+    distances_to_centroids = [euclidean_distance(user_input, c) for c in centroids]
+    predicted_cluster = distances_to_centroids.index(min(distances_to_centroids))
+
+    #  Compute distance to user input for ranking
+    distance_to_user = [euclidean_distance(user_input, point) for point in data_points]
+
+    #  Filter locations in predicted cluster
+    cluster_indices = [i for i, c in enumerate(cluster_assignments) if c == predicted_cluster]
+    ordered_cluster = sorted(cluster_indices, key=lambda i: distance_to_user[i])
+    ordered_ids = [ids[i] for i in ordered_cluster]
+
+    results = list(Location.objects.filter(id__in=ordered_ids))
+    results.sort(key=lambda x: ordered_ids.index(x.id))
+
+    #  Fallback if cluster empty
+    if not results:
+        nearest_indices = sorted(range(len(distance_to_user)), key=lambda i: distance_to_user[i])[:5]
+        nearest_ids = [ids[i] for i in nearest_indices]
+        results = list(Location.objects.filter(id__in=nearest_ids))
+        results.sort(key=lambda x: nearest_ids.index(x.id))
+        predicted_cluster = "Nearest Match"
+
+    return results, predicted_cluster

@@ -51,5 +51,5 @@ DESTINATIONS = {
             {'name': 'Temple Tree Resort', 'link': 'https://www.templetreeresort.com/'}
         ],
     },
-    # Add other entries using the same 'intel' and 'radar_data' structure
+    
 }
