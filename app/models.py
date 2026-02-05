@@ -50,7 +50,7 @@ class ClusterHistory(models.Model):
     unlocked_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        # This prevents the same cluster being saved multiple times for one user
+        
         unique_together = ('user', 'cluster_id') 
 
     def __str__(self):

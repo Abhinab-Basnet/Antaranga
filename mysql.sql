@@ -19,6 +19,7 @@ INSERT INTO locations (name, nature_score, adventure_score, culture_score, altit
 ('Annapurna Base Camp', 10, 9, 3, 9),
 ('Bhaktapur Durbar Square', 1, 1, 10, 4),
 ('Nagarkot (Sunrise View)', 8, 3, 4, 5),
+
 ('Rara Lake', 10, 8, 3, 5),
 ('Muktinath Temple', 7, 7, 9, 4),
 ('Ghorepani Poon Hill', 9, 7, 5, 7),
