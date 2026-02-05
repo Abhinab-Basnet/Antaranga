@@ -15,11 +15,16 @@ class Location(models.Model):
     def __str__(self):
         return self.name
 
-# --- ADD THESE MODELS BELOW ---
+
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     cluster_id = models.IntegerField(null=True, blank=True)
+    nature_score = models.FloatField(default=0)
+    adventure_score = models.FloatField(default=0)
+    culture_score = models.FloatField(default=0)
+    altitude_score = models.FloatField(default=0)
+    top_match_name = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
         return self.user.username

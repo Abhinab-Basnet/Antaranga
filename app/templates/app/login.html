@@ -1,25 +1,224 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login - Antaranga</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antaranga | Login</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:wght@300;400;600&display=swap" rel="stylesheet">
+    
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #0f172a; color: white; }
-        .login-box { background: #1e293b; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 4px; border: none; }
-        button { width: 100%; padding: 10px; background: #38bdf8; border: none; color: white; cursor: pointer; border-radius: 4px; }
+        :root {
+            --bg-dark: #0a1628;
+            --accent: #ff914d;
+            --gold: #ffb347;
+            --text-main: #f8f9fa;
+            --text-muted: #8b9098;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Cormorant Garamond', serif;
+            background-color: var(--bg-dark);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .page-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background: linear-gradient(to bottom, var(--bg-dark) 5%, rgba(10, 22, 40, 0.2) 50%, var(--bg-dark) 95%),
+                        url("{% static 'app/assets/images/annapurna.jpg' %}");
+            background-size: cover;
+            background-position: center bottom;
+        }
+
+        /* Compass Loader Styles */
+        #oracle-loader {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 22, 40, 0.98);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .compass-spin {
+            width: 80px;
+            height: 80px;
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            position: relative;
+            animation: rotateCompass 2s infinite cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        .compass-spin::after {
+            content: '';
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            width: 4px;
+            height: 80%;
+            background: linear-gradient(to bottom, var(--accent) 50%, #444 50%);
+            transform: translateX(-50%);
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+        }
+
+        @keyframes rotateCompass {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .loader-text {
+            margin-top: 25px;
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            letter-spacing: 4px;
+            font-size: 0.8rem;
+            text-shadow: 0 0 10px rgba(255, 179, 71, 0.3);
+        }
+
+        .glass-card {
+            background: rgba(15, 25, 42, 0.75);
+            backdrop-filter: blur(15px);
+            padding: 40px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 145, 77, 0.1);
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.7);
+        }
+
+        .brand-header { text-align: center; margin-bottom: 25px; }
+        .brand-header h1 { font-family: 'Cinzel', serif; color: var(--text-main); letter-spacing: 5px; font-size: 2rem; }
+        .nepali-brand { font-size: 1.1rem; color: var(--text-muted); display: block; margin: 5px 0; }
+
+        .form-group { margin-bottom: 20px; position: relative; }
+        .form-group label { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1.5px; }
+        
+        .input-control {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: #fff;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .input-control:-webkit-autofill {
+            -webkit-text-fill-color: white !important;
+            -webkit-box-shadow: 0 0 0px 1000px #131f33 inset !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        .input-control:focus { border-color: var(--accent); }
+
+        .toggle-btn { position: absolute; right: 15px; bottom: 12px; background: none; border: none; cursor: pointer; color: var(--text-muted); }
+
+        .form-options { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; font-size: 0.85rem; }
+        .remember-me { display: flex; align-items: center; cursor: pointer; color: var(--text-muted); }
+        .remember-me input { margin-right: 8px; accent-color: var(--accent); }
+
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            color: #000;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .btn-submit:hover { background: var(--gold); transform: translateY(-2px); }
+
+        .signup-footer { margin-top: 25px; text-align: center; font-size: 0.9rem; color: var(--text-muted); }
+        .signup-footer a { color: var(--accent); text-decoration: none; font-weight: 600; margin-left: 5px; }
+        .signup-footer a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
-    <div class="login-box">
-        <h2>Login to Antaranga</h2>
-        <form method="post">
-            {% csrf_token %}
-            <p><input type="text" name="username" placeholder="Username" required></p>
-            <p><input type="password" name="password" placeholder="Password" required></p>
-            <button type="submit">Login</button>
-        </form>
-        <p>New here? <a href="{% url 'signup' %}" style="color: #38bdf8;">Create an account</a></p>
+
+    <div class="page-bg"></div>
+
+    <div id="oracle-loader">
+        <div class="compass-spin"></div>
+        <p class="loader-text">CONSULTING THE ORACLE...</p>
     </div>
+
+    <div class="glass-card">
+        <div class="brand-header">
+            <h1>ANTARANGA</h1>
+            <span class="nepali-brand">अन्तरङ्ग</span>
+            <p style="color: var(--accent); font-size: 0.75rem; letter-spacing: 3px;">THE TRAVEL ORACLE</p>
+        </div>
+
+        <form id="loginForm" method="POST">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" class="input-control" required>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="pass" name="password" class="input-control" required>
+                <button type="button" class="toggle-btn" onclick="togglePass()">
+                    <svg id="eyeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="form-options">
+                <label class="remember-me">
+                    <input type="checkbox" name="remember_me"> Remember Me
+                </label>
+                <a href="#" style="color: var(--accent); text-decoration: none;">Forgot?</a>
+            </div>
+
+            <button type="submit" class="btn-submit">Enter Oracle</button>
+        </form>
+
+        <div class="signup-footer">
+            New seeker? <a href="{% url 'signup' %}">Create Account</a>
+        </div>
+    </div>
+
+    <script>
+        function togglePass() {
+            const field = document.getElementById('pass');
+            const icon = document.getElementById('eyeIcon');
+            if (field.type === 'password') {
+                field.type = 'text';
+                icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+            } else {
+                field.type = 'password';
+                icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+            }
+        }
+
+        
+        document.getElementById('loginForm').onsubmit = function() {
+            document.getElementById('oracle-loader').style.display = 'flex';
+        };
+    </script>
 </body>
 </html>

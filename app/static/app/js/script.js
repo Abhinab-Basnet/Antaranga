@@ -17,14 +17,18 @@ cards.forEach(card => {
     card.addEventListener('click', () => {
         const title = card.getAttribute('data-title');
 
-       
+        
         cards.forEach(c => c.classList.remove('active'));
         card.classList.add('active');
-        heroTitle.innerText = title;
-        const newBg = card.style.backgroundImage;
-        heroSection.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), ${newBg}`;
 
-      
+        
+        heroTitle.innerText = title;
+
+       
+        const cardBg = window.getComputedStyle(card).backgroundImage;
+        heroSection.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), ${cardBg}`;
+
+        
         if (currentAudio) {
             currentAudio.pause();
             currentAudio.currentTime = 0;
@@ -34,77 +38,55 @@ cards.forEach(card => {
         if (voiceMap[title]) {
             currentAudio = new Audio(voiceMap[title]);
             
-        
+            
             const source = document.createElement('source');
             source.src = voiceMap[title];
             source.type = 'audio/mp4'; 
             currentAudio.appendChild(source);
 
+       
             currentAudio.play().catch(error => {
-                console.log("Audio play prevented. Ensure user has interacted with the page.");
+                console.log("Audio play prevented. Ensure user has interacted with the page first.");
             });
         }
     });
 });
 
-// aboutsection
-window.addEventListener('scroll', () => {
-    const cards = document.querySelectorAll('.info-card');
-    const screenPos = window.innerHeight / 1.2;
 
-    cards.forEach((card, index) => {
-        const cardPos = card.getBoundingClientRect().top;
 
-        if (cardPos < screenPos) {
-            
-            setTimeout(() => {
-                card.style.opacity = "1";
-                card.style.transform = "translateY(0)";
-            }, index * 150);
+const intelObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const counters = entry.target.querySelectorAll('.counter');
+            counters.forEach(counter => {
+                const updateCount = () => {
+                    const target = +counter.getAttribute('data-target');
+                    const count = +counter.innerText;
+                    
+                 
+                    const speed = target > 100 ? 150 : 250; 
+                    const inc = Math.ceil(target / speed);
+
+                    if (count < target) {
+                       
+                        counter.innerText = count + inc > target ? target : count + inc;
+                        setTimeout(updateCount, 15);
+                    } else {
+                        counter.innerText = target;
+                    }
+                };
+                updateCount();
+            });
+           
+            intelObserver.unobserve(entry.target);
         }
     });
+}, { threshold: 0.4 });
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const section = document.getElementById('intel-section');
+    if (section) intelObserver.observe(section);
 });
 
 
-//page 3
-
-//page4
-
-function goToStep(step) {
-    const frames = document.querySelectorAll('.q-frame');
-    const dots = document.querySelectorAll('.dot');
-    const aura = document.getElementById('aura');
-    const watermark = document.getElementById('cultural-watermark');
-
-   
-    frames.forEach(frame => {
-        if(frame.classList.contains('active')) {
-            frame.style.opacity = '0';
-        }
-    });
-
-    setTimeout(() => {
-        frames.forEach(frame => frame.classList.remove('active'));
-        
-        const nextFrame = document.getElementById('q' + step);
-        nextFrame.classList.add('active');
-        nextFrame.style.opacity = '1';
-
-        
-        const themeColor = nextFrame.getAttribute('data-color');
-        const iconSymbol = nextFrame.getAttribute('data-icon');
-
-        aura.style.background = `radial-gradient(circle at center, ${themeColor} 0%, transparent 70%)`;
-        watermark.style.opacity = '0';
-        
-        setTimeout(() => {
-            watermark.innerText = iconSymbol;
-            watermark.style.opacity = '0.06';
-        }, 300);
-
-        
-        dots.forEach((dot, index) => {
-            dot.classList.toggle('active', index === step - 1);
-        });
-    }, 400);
-}

@@ -1,35 +1,353 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Signup - Antaranga</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Antaranga | The Journey Begins</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:wght@300;400;600&display=swap" rel="stylesheet">
+    
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #0f172a; color: white; margin: 0; }
-        .signup-box { background: #1e293b; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 320px; }
+        :root {
+            --bg-dark: #0a1628;
+            --accent: #ff914d;
+            --gold: #ffb347;
+            --text-main: #f8f9fa;
+            --text-muted: #8b9098;
+            --prayer-blue: #00509d;
+            --prayer-white: #ffffff;
+            --prayer-red: #d62828;
+            --prayer-green: #2a9d8f;
+            --prayer-yellow: #e9c46a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Cormorant Garamond', serif;
+            background-color: var(--bg-dark);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        .page-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background: linear-gradient(to bottom, var(--bg-dark) 5%, rgba(10, 22, 40, 0.3) 50%, var(--bg-dark) 95%),
+                        url("{% static 'app/assets/images/annapurna.jpg' %}");
+            background-size: cover;
+            background-position: center;
+        }
+
         
-        /* This ensures the Django form fields look like your login inputs */
-        input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 4px; border: none; box-sizing: border-box; }
+        .journey-path {
+            position: fixed;
+            left: 50px;
+            top: 10%;
+            bottom: 10%;
+            width: 2px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .milestone {
+            position: absolute;
+            left: -14px;
+            width: 30px;
+            height: 30px;
+            background: var(--bg-dark);
+            border: 2px solid var(--text-muted);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cinzel', serif;
+            font-size: 0.8rem;
+            transition: 0.5s;
+        }
+
+        .milestone.completed {
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 15px var(--accent);
+        }
+
         
-        button { width: 100%; padding: 10px; background: #38bdf8; border: none; color: #0f172a; font-weight: bold; cursor: pointer; border-radius: 4px; margin-top: 10px; transition: background 0.3s; }
-        button:hover { background: #0ea5e9; }
-        
-        h2 { margin-top: 0; text-align: center; }
-        p { font-size: 14px; text-align: center; }
-        a { text-decoration: none; font-weight: bold; }
-        
-        /* Styles Django's {{ form.as_p }} labels slightly */
-        form p { text-align: left; font-size: 13px; color: #94a3b8; margin: 5px 0; }
+        .glass-card {
+            background: rgba(15, 25, 42, 0.85);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 5px solid;
+            border-image: linear-gradient(to right, var(--prayer-blue) 20%, var(--prayer-white) 20% 40%, var(--prayer-red) 40% 60%, var(--prayer-green) 60% 80%, var(--prayer-yellow) 80%) 1;
+            width: 100%;
+            max-width: 550px;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.6);
+            position: relative;
+        }
+
+        .header-section { text-align: center; margin-bottom: 30px; }
+        .header-section h1 { font-family: 'Cinzel', serif; letter-spacing: 4px; font-size: 2.2rem; }
+        .nepali-sub { font-size: 1.1rem; color: var(--text-muted); display: block; margin-top: 5px; }
+
+     
+        .altitude-container { margin-bottom: 30px; }
+        .altitude-track { height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden; }
+        .altitude-fill { height: 100%; width: 0%; background: linear-gradient(to right, var(--accent), var(--gold)); transition: 0.4s; }
+
+        .form-section-title {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            font-size: 0.85rem;
+            margin: 25px 0 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: 2px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 5px;
+        }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { margin-bottom: 18px; position: relative; }
+        .form-group label { display: block; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1.5px; }
+
+        .input-control {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: #fff;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.05rem;
+            transition: 0.3s;
+        }
+
+        .input-control:focus { border-color: var(--accent); background: rgba(255,255,255,0.08); outline: none; }
+
+       
+        .toggle-eye {
+            position: absolute;
+            right: 12px;
+            top: 32px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .toggle-eye:hover { color: var(--accent); }
+
+      
+        .strength-row { display: flex; gap: 4px; margin-top: 8px; }
+        .s-bar { flex: 1; height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; transition: 0.3s; }
+        .s-bar.active { background: var(--accent); box-shadow: 0 0 5px var(--accent); }
+
+        .checkbox-container { display: flex; align-items: flex-start; gap: 10px; margin-top: 15px; cursor: pointer; color: var(--text-muted); font-size: 0.9rem; }
+        .checkbox-container input { accent-color: var(--accent); margin-top: 4px; }
+
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--accent), var(--gold));
+            border: none;
+            border-radius: 8px;
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            letter-spacing: 3px;
+            cursor: pointer;
+            margin-top: 25px;
+            transition: 0.3s;
+            color: #000;
+        }
+
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255, 145, 77, 0.4); }
+
+        .footer-link { text-align: center; margin-top: 25px; color: var(--text-muted); font-size: 0.95rem; }
+        .footer-link a { color: var(--accent); text-decoration: none; font-weight: 600; margin-left: 5px; }
+
+       
+        #climb-overlay {
+            position: fixed; inset: 0; background: var(--bg-dark);
+            display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000;
+        }
+        .mountain-icon { width: 100px; height: 80px; border-bottom: 2px solid var(--accent); position: relative; overflow: hidden; }
+        .mountain-peak { width: 0; height: 0; border-left: 50px solid transparent; border-right: 50px solid transparent; border-bottom: 70px solid rgba(255,255,255,0.1); position: absolute; bottom: 0; }
+        .climber-dot { width: 8px; height: 8px; background: var(--gold); border-radius: 50%; position: absolute; bottom: 0; left: 46%; animation: climb-up 2s infinite; box-shadow: 0 0 10px var(--gold); }
+        @keyframes climb-up { 0% { bottom: 0; opacity: 1; } 100% { bottom: 70px; opacity: 0; } }
+
+        @media (max-width: 600px) {
+            .form-row { grid-template-columns: 1fr; }
+            .journey-path { display: none; }
+            .glass-card { padding: 30px 20px; }
+        }
     </style>
 </head>
 <body>
-    <div class="signup-box">
-        <h2>Join Antaranga</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Create Account</button>
-        </form>
-        <p>Already have an account? <a href="{% url 'login' %}" style="color: #38bdf8;">Login here</a></p>
+
+    <div class="page-bg"></div>
+
+    <div class="journey-path">
+        <div class="milestone" style="top: 0%" id="m1">1</div>
+        <div class="milestone" style="top: 33%" id="m2">2</div>
+        <div class="milestone" style="top: 66%" id="m3">3</div>
+        <div class="milestone" style="top: 100%" id="m4">4</div>
     </div>
+
+    <div id="climb-overlay">
+        <div class="mountain-icon">
+            <div class="mountain-peak"></div>
+            <div class="climber-dot"></div>
+        </div>
+        <p style="font-family: 'Cinzel', serif; color: var(--gold); margin-top: 20px; letter-spacing: 3px; font-size: 0.8rem;">ASCENDING THE PEAK...</p>
+    </div>
+
+    <div class="glass-card">
+        <div class="header-section">
+            <h1>BECOME A SEEKER</h1>
+            <span class="nepali-sub">नयाँ खोज सुरु गर्नुहोस्</span>
+        </div>
+
+        <div class="altitude-container">
+            <div class="altitude-track"><div class="altitude-fill" id="fill"></div></div>
+            <p style="font-size: 0.65rem; color: var(--accent); text-align: center; margin-top: 8px; letter-spacing: 2px;">ASCENT PROGRESS: <span id="percent">0%</span></p>
+        </div>
+
+        <form id="signupForm" method="POST">
+            {% csrf_token %}
+            
+            <div class="form-section-title">Identity</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>First Name</label>
+                    <input type="text" name="first_name" class="input-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input type="text" name="last_name" class="input-control" required>
+                </div>
+            </div>
+
+            <div class="form-section-title">The Gateway</div>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" class="input-control" required>
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" name="email" class="input-control" required>
+            </div>
+
+            <div class="form-section-title">Protection</div>
+            <div class="form-group">
+                <label>Secret Key (Password)</label>
+                <input type="password" id="p1" name="password1" class="input-control" required>
+                <button type="button" class="toggle-eye" onclick="toggleSecret('p1', 'eye1')">
+                    <svg id="eye1" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </button>
+                <div class="strength-row">
+                    <div class="s-bar" id="b1"></div><div class="s-bar" id="b2"></div><div class="s-bar" id="b3"></div><div class="s-bar" id="b4"></div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Confirm Key</label>
+                <input type="password" id="p2" name="password2" class="input-control" required>
+                <button type="button" class="toggle-eye" onclick="toggleSecret('p2', 'eye2')">
+                    <svg id="eye2" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </button>
+            </div>
+
+            <label class="checkbox-container">
+                <input type="checkbox" required>
+                <span>I accept the Laws of the Oracle and the Privacy Scrolls.</span>
+            </label>
+
+            <button type="submit" class="btn-submit">BEGIN ADVENTURE</button>
+        </form>
+
+        <div class="footer-link">
+            Already a seeker? <a href="{% url 'login' %}">Sign in here</a>
+        </div>
+    </div>
+
+    <script>
+        
+        const inputs = document.querySelectorAll('.input-control, input[type="checkbox"]');
+        const fill = document.getElementById('fill');
+        const pct = document.getElementById('percent');
+
+        function updateProgress() {
+            let done = 0;
+            inputs.forEach(i => {
+                if(i.type === 'checkbox') { if(i.checked) done++; }
+                else { if(i.value.length > 0) done++; }
+            });
+            let progress = (done / inputs.length) * 100;
+            fill.style.width = progress + '%';
+            pct.innerText = Math.round(progress) + '%';
+            
+            for(let i=1; i<=4; i++) {
+                document.getElementById('m'+i).classList.toggle('completed', progress >= (i-1)*25 + 10);
+            }
+        }
+
+        inputs.forEach(i => {
+            i.addEventListener('input', updateProgress);
+            i.addEventListener('change', updateProgress);
+        });
+
+       
+        function toggleSecret(fieldId, eyeId) {
+            const field = document.getElementById(fieldId);
+            const icon = document.getElementById(eyeId);
+            const eyeOff = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+            const eyeOn = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+
+            if (field.type === 'password') {
+                field.type = 'text';
+                icon.innerHTML = eyeOff;
+            } else {
+                field.type = 'password';
+                icon.innerHTML = eyeOn;
+            }
+        }
+
+       
+        document.getElementById('p1').addEventListener('input', function() {
+            let val = this.value;
+            let s = 0;
+            if(val.length > 7) s++;
+            if(/[A-Z]/.test(val)) s++;
+            if(/[0-9]/.test(val)) s++;
+            if(/[^A-Za-z0-9]/.test(val)) s++;
+            
+            for(let i=1; i<=4; i++) {
+                document.getElementById('b'+i).classList.toggle('active', i <= s);
+            }
+        });
+
+       
+        document.getElementById('signupForm').onsubmit = function(e) {
+            if(document.getElementById('p1').value !== document.getElementById('p2').value) {
+                alert("The keys do not match, seeker.");
+                e.preventDefault();
+                return;
+            }
+            document.getElementById('climb-overlay').style.display = 'flex';
+        };
+    </script>
 </body>
 </html>

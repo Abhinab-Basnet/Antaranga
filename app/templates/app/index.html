@@ -5,52 +5,102 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Antaranga - Discover Nepal</title>
+    
     <link rel="stylesheet" href="{% static 'app/css/style.css' %}" />
-    <style>
-  /* We use CSS classes so the editor doesn't mess with HTML quotes */
-  .card-everest { background-image: url("{% static 'app/assets/images/everestmain.jpg' %}"); }
-  .card-swayambhu { background-image: url("{% static 'app/assets/images/buddhanath.jpg' %}"); }
-  .card-annapurna { background-image: url("{% static 'app/assets/images/annapurna.jpg' %}"); }
-  .card-pashupati { background-image: url("{% static 'app/assets/images/Pashupatinath Temple.jpeg' %}"); }
-  .card-lumbini { background-image: url("{% static 'app/assets/images/lumbini1.jpg' %}"); }
 
-  /* Ensure the background covers the card properly */
-  .card {
-    background-size: cover;
-    background-position: center;
-  }
-</style>
+    <link href="https://fonts.googleapis.com/css2?family=Jaini&family=Roboto:ital,wght@0,100..900;1,100..900&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+     
+      .card-everest { background-image: url("{% static 'app/assets/images/everestmain.jpg' %}"); }
+      .card-swayambhu { background-image: url("{% static 'app/assets/images/buddhanath.jpg' %}"); }
+      .card-annapurna { background-image: url("{% static 'app/assets/images/annapurna.jpg' %}"); }
+      .card-pashupati { background-image: url("{% static 'app/assets/images/Pashupatinath Temple.jpeg' %}"); }
+      .card-lumbini { background-image: url("{% static 'app/assets/images/lumbini1.jpg' %}"); }
+
+  
+footer {
+    background-color: #000 !important;
+    color: #fff !important;
+    padding: 60px 50px 30px 50px !important;
+    border-top: 4px solid crimson !important;
+    width: 100% !important;
+    display: block !important;
+    clear: both;
+}
+
+.footer-container {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    max-width: 1200px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.footer-logo {
+    font-family: 'Jaini', cursive !important;
+    font-size: 2.2rem !important;
+    color: crimson !important;
+    margin-bottom: 5px;
+}
+
+.footer-tagline {
+    font-size: 1rem;
+    color: #ccc;
+    font-family: 'Poppins', sans-serif;
+}
+
+.footer-credits p {
+    font-size: 0.8rem;
+    color: #888;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.team-names {
+    display: flex !important;
+    gap: 20px !important;
+}
+
+.team-names span {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #fff !important;
+    font-family: 'Poppins', sans-serif;
+}
+
+.footer-bottom {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #222;
+    font-size: 0.8rem;
+    color: #555;
+}
+    </style>
   </head>
   <body>
     <header>
       <div class="logo">ANTARANGA</div>
       <nav>
         <a href="{% url 'home' %}">Home</a>
-        <a href="#">The Vibe Check</a>
-        <a href="#">Destination</a>
-        <a href="#">Explore</a>
-        <a href="{% url 'messenger' %}">Messenger</a> <span>Namaste, {{ user.username }}</span>
+        <a href="{% url 'dashboard' %}">Dashboard</a>
+        <a href="{% url 'results' %}">My Sanctuaries</a>
+        <a href="#">My Mood</a>
+        <a href="{% url 'messenger' %}">Messenger</a>
+        <span class="user-greeting">
+          Namaste, {% if user.first_name %}{{ user.first_name }}{% else %}{{ user.username }}{% endif %}
+        </span>
+        
         <button class="nav-btn" onclick="location.href='{% url 'survey' %}'">
           Design Your Journey
         </button>
-      </nav>
-      <nav>
-        <a href="{% url 'home' %}">Home</a>
-        <span>Namaste, {{ user.username }}</span>
 
         <form action="{% url 'logout' %}" method="post" style="display: inline">
           {% csrf_token %}
-          <button
-            type="submit"
-            style="
-              cursor: pointer;
-              background: #e74c3c;
-              color: white;
-              border: none;
-              padding: 5px 10px;
-              border-radius: 4px;
-            "
-          >
+          <button type="submit" class="logout-btn">
             Logout
           </button>
         </form>
@@ -65,211 +115,104 @@
         <button class="explore-btn">Explore more</button>
       </div>
 
-     <div class="carousel-container">
-  <div class="carousel">
-    <div class="card active card-everest" data-title="MOUNT EVEREST"></div>
-    <div class="card card-swayambhu" data-title="SWAYAMBHUNATH"></div>
-    <div class="card card-annapurna" data-title="ANNAPURNA"></div>
-    <div class="card card-pashupati" data-title="PASHUPATINATH"></div>
-    <div class="card card-lumbini" data-title="LUMBINI"></div>
-  </div>
-</div>
+      <div class="carousel-container">
+        <div class="carousel">
+          <div class="card active card-everest" data-title="MOUNT EVEREST"></div>
+          <div class="card card-swayambhu" data-title="SWAYAMBHUNATH"></div>
+          <div class="card card-annapurna" data-title="ANNAPURNA"></div>
+          <div class="card card-pashupati" data-title="PASHUPATINATH"></div>
+          <div class="card card-lumbini" data-title="LUMBINI"></div>
+        </div>
+      </div>
     </main>
 
-    <section class="about-section">
-      <div class="about-container">
-        <div class="about-image">
-          <img
-            src="{% static 'app/assets/images/mandala.png' %}"
-            alt="Mandala Art"
-            class="mandala"
-          />
+    <section id="intel-section">
+        <div id="mandala-corner-container">
+            <img src="{% static 'app/assets/images/m.png' %}" id="rotating-mandala-small" alt="Mandala">
         </div>
 
-        <div class="about-text">
-          <h2>ANTARANGA ?</h2>
-
-          <div class="about-cards-container">
-            <div class="info-card">
-              <div class="card-icon-mini">ॐ</div>
-              <div class="card-content">
-                <h3>A Soulful Feeling</h3>
-                <p>
-                  Antaranga is not just a travel guide — it is a feeling. It
-                  helps travelers discover Nepal through their interests,
-                  emotions, and curiosity.
-                </p>
-              </div>
-            </div>
-
-            <div class="info-card">
-              <div class="card-icon-mini">🏔️</div>
-              <div class="card-content">
-                <h3>Living Traditions</h3>
-                <p>
-                  We guide you to destinations where culture lives, food tells
-                  stories, and traditions breathe in everyday life instead of
-                  just maps.
-                </p>
-              </div>
-            </div>
-
-            <div class="info-card">
-              <div class="card-icon-mini">🚩</div>
-              <div class="card-content">
-                <h3>Personal Journey</h3>
-                <p>
-                  It understands why you travel, not just where you go, making
-                  each experience in Nepal personal, soulful, and unforgettable.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div class="about-icons">
-            <img
-              src="{% static 'app/assets/images/khukuri.png' %}"
-              alt="Kukri"
-            />
-            <img
-              src="{% static 'app/assets/images/emblem.png' %}"
-              alt="Nepal Emblem"
-            />
-            <img
-              src="{% static 'app/assets/images/flag.jpeg' %}"
-              alt="Nepal Flag"
-            />
-          </div>
+        <div id="intel-header">
+            <h3>CORE_ENGINE: K-MEANS_CLUSTERING_ALGORITHM</h3>
+            <div id="header-line"></div>
         </div>
-      </div>
+
+        <div id="intel-grid">
+            <div id="stats-container">
+                <div class="stat-box">
+                    <h2 class="counter" data-target="42">0</h2>
+                    <p>PLACES ANALYZED</p>
+                </div>
+                <div class="stat-box">
+                    <h2 class="counter" data-target="5">0</h2>
+                    <p>CLUSTERS FOUND</p>
+                </div>
+                <div class="stat-box">
+                    <h2 class="counter" data-target="147">0</h2>
+                    <p>TERRAIN FEATURES</p>
+                </div>
+                <div class="stat-box">
+                    <h2 class="counter" data-target="1200">0</h2><span class="percent">+</span>
+                    <p>VIBE SAMPLES</p>
+                </div>
+                <div class="stat-box" id="wide-match-box">
+                    <h2 class="counter" data-target="98">0</h2><span class="percent">%</span>
+                    <p>RESONANCE MATCH ACCURACY</p>
+                </div>
+            </div>
+
+            <div id="info-text">
+                <h2>The Antaranga Oracle</h2>
+                <p>
+                    Antaranga is an ML-powered travel oracle. While traditional platforms filter by price, we filter by <strong>Resonance</strong>. 
+                </p>
+                <p>
+                    Our algorithm processes terrain data, altitude, and cultural history to ensure the location you choose matches your internal state perfectly.
+                </p>
+            </div>
+        </div>
+
+        <div id="flow-container">
+            <div class="flow-step">
+                <span>01</span>
+                <h4>THE INQUIRY</h4>
+                <p>Take the vibe-check survey</p>
+            </div>
+            <div class="flow-arrow">➔</div>
+            <div class="flow-step">
+                <span>02</span>
+                <h4>CLUSTERING</h4>
+                <p>Oracle sorts the terrain</p>
+            </div>
+            <div class="flow-arrow">➔</div>
+            <div class="flow-step">
+                <span>03</span>
+                <h4>THE MATCH</h4>
+                <p>Your destination revealed</p>
+            </div>
+        </div>
     </section>
 
-    <section class="oracle-trailer">
-      <div class="wood-beam top">
-        <div class="carving-module top-style"></div>
-        <div class="carving-module top-style"></div>
-        <div class="carving-module top-style"></div>
-        <div class="carving-module top-style"></div>
-        <div class="carving-module top-style"></div>
-        <div class="carving-module top-style"></div>
-        <div class="carving-module top-style"></div>
+    <footer>
+      <div class="footer-container">
+          <div class="footer-content">
+              <div class="footer-logo">ANTARANGA</div>
+              <p class="footer-tagline">The Eternal Oracle for your soulful journeys.</p>
+          </div>
+          
+          <div class="footer-credits">
+              <p>Crafted with heart for the project by:</p>
+              <div class="team-names">
+                  <span>Abhinab</span>
+                  <span>Samipya</span>
+                  <span>Ayam</span>
+                  <span>Prajaya</span>
+              </div>
+          </div>
       </div>
-
-      <div class="pillar left-pillar"></div>
-      <div class="pillar right-pillar"></div>
-
-      <div class="lokta-texture"></div>
-      <div class="atmosphere-glow" id="aura"></div>
-      <div id="cultural-watermark" class="watermark-svg">🐚</div>
-
-      <div class="trailer-wrapper">
-        <div class="oracle-dots">
-          <span class="dot active"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-        </div>
-
-        <div class="questions-container">
-          <div
-            class="q-frame active"
-            id="q1"
-            data-icon="🕊️"
-            data-color="rgba(176, 141, 87, 0.15)"
-          >
-            <span class="q-label jaini-font">प्रारम्भ • The Origin</span>
-            <h2 class="jaini-font">
-              If your life was a river, would it be a silent lake or a crashing
-              waterfall?
-            </h2>
-            <div class="options">
-              <button class="nepal-btn" onclick="goToStep(2)">
-                <span class="btn-text">The Silent Lake</span>
-                <span class="btn-sub jaini-font">Deep Stillness</span>
-              </button>
-              <button class="nepal-btn" onclick="goToStep(2)">
-                <span class="btn-text">The Waterfall</span>
-                <span class="btn-sub jaini-font">Pure Energy</span>
-              </button>
-            </div>
-          </div>
-
-          <div
-            class="q-frame"
-            id="q2"
-            data-icon="☸"
-            data-color="rgba(175, 0, 42, 0.1)"
-          >
-            <span class="q-label jaini-font">दृष्टिकोण • The Calling</span>
-            <h2 class="jaini-font">
-              When you close your eyes, do you see the forest shadow or the peak
-              glow?
-            </h2>
-            <div class="options">
-              <button class="nepal-btn" onclick="goToStep(3)">
-                <span class="btn-text">The Shadow</span>
-                <span class="btn-sub jaini-font">The Lush Terai</span>
-              </button>
-              <button class="nepal-btn" onclick="goToStep(3)">
-                <span class="btn-text">The Glow</span>
-                <span class="btn-sub jaini-font">The Eternal Himalaya</span>
-              </button>
-            </div>
-          </div>
-
-          <div
-            class="q-frame"
-            id="q3"
-            data-icon="🏺"
-            data-color="rgba(100, 100, 100, 0.08)"
-          >
-            <span class="q-label jaini-font">सम्बन्ध • The Purpose</span>
-            <h2 class="jaini-font">
-              Do you seek to lose yourself in the crowd, or find yourself in the
-              silence?
-            </h2>
-            <div class="options">
-              <button class="nepal-btn" onclick="goToStep(4)">
-                <span class="btn-text">Lose Myself</span>
-                <span class="btn-sub jaini-font">Culture & Chaos</span>
-              </button>
-              <button class="nepal-btn" onclick="goToStep(4)">
-                <span class="btn-text">Find Myself</span>
-                <span class="btn-sub jaini-font">Solitude & Spirit</span>
-              </button>
-            </div>
-          </div>
-
-          <div
-            class="q-frame"
-            id="q4"
-            data-icon="नेपाल"
-            data-color="rgba(212, 175, 55, 0.3)"
-          >
-            <div class="ritual-icon pulse">🧿</div>
-            <h2 class="jaini-font">Your echo has been heard.</h2>
-            <p class="ritual-text jaini-font">
-              The intention is set. Let us begin the deep mapping.
-            </p>
-
-            <a href="{% url 'survey' %}" class="ritual-cta-btn">
-              <span class="jaini-font">Enter the Sanctuary</span>
-              <div class="btn-shine"></div>
-            </a>
-          </div>
-        </div>
+      <div class="footer-bottom">
+          &copy; 2026 Antaranga Project. All rights reserved.
       </div>
-
-      <div class="wood-beam bottom">
-        <div class="carving-module bottom-style"></div>
-        <div class="carving-module bottom-style"></div>
-        <div class="carving-module bottom-style"></div>
-        <div class="carving-module bottom-style"></div>
-        <div class="carving-module bottom-style"></div>
-        <div class="carving-module bottom-style"></div>
-        <div class="carving-module bottom-style"></div>
-      </div>
-    </section>
+    </footer>
 
     <script src="{% static 'app/js/script.js' %}"></script>
   </body>

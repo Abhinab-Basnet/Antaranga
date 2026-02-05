@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Antaranga | The Eternal Oracle</title>
     <link href="https://fonts.googleapis.com/css2?family=Jaini&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
         :root {
@@ -13,6 +14,8 @@
             --blue: #003893;
             --gold: #b08d57;
             --snow: #fdfcf8;
+            /* Dynamic Accent based on Cluster */
+            {% if cluster == 0 %} --accent: #f39c12; {% elif cluster == 1 %} --accent: #3498db; {% elif cluster == 2 %} --accent: #e74c3c; {% else %} --accent: #2ecc71; {% endif %}
         }
 
         body, html {
@@ -22,7 +25,27 @@
             scroll-behavior: smooth;
         }
 
-        /* --- Header --- */
+        
+        #loader-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--snow); display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 99999;
+            transition: opacity 0.8s ease;
+        }
+        .loader-ritual {
+            width: 80px; height: 80px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--crimson);
+            border-bottom: 4px solid var(--blue);
+            border-radius: 50%;
+            animation: spin-ritual 2s linear infinite;
+        }
+        @keyframes spin-ritual {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        
         header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 10px 40px; background: var(--crimson);
@@ -40,45 +63,48 @@
             overflow: hidden; position: relative;
         }
 
-        .title-area { text-align: center; margin-bottom: 40px; z-index: 10; }
+        .title-area { text-align: center; margin-bottom: 20px; z-index: 10; }
         .title-area p { color: var(--gold); letter-spacing: 4px; font-size: 0.6rem; font-weight: 700; margin: 0; }
         .title-area h1 { font-family: 'Jaini', cursive; font-size: 2.2rem; color: var(--crimson); margin: 5px 0; }
 
+        /* Vibe Badge Style */
+        .vibe-badge {
+            background: var(--accent); color: white; padding: 5px 15px;
+            border-radius: 50px; font-size: 0.7rem; font-weight: bold;
+            display: inline-block; margin-top: 10px; letter-spacing: 1px;
+        }
+
         .scene {
-            perspective: 1200px;
-            width: 100%; height: 350px;
+            perspective: 1500px;
+            width: 100%; height: 400px;
             display: flex; justify-content: center; align-items: center;
         }
 
         .wheel {
-            width: 180px; height: 260px;
+            width: 200px; height: 280px;
             position: relative; transform-style: preserve-3d;
             transition: transform 0.1s linear;
         }
 
         .panel {
-            position: absolute; width: 180px; height: 260px;
+            position: absolute; width: 200px; height: 280px;
             background: white; border-radius: 12px; padding: 12px;
-            backface-visibility: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.06);
+            backface-visibility: hidden; box-shadow: 0 5px 25px rgba(0,0,0,0.08);
             cursor: pointer; box-sizing: border-box; border: 1px solid #eee;
             display: flex; flex-direction: column;
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
         }
 
-        .panel:hover {
-            border-color: var(--gold);
-            z-index: 5000;
-        }
-
-        .panel img { width: 100%; height: 130px; object-fit: cover; border-radius: 8px; }
-        .panel h3 { font-family: 'Jaini', cursive; font-size: 1.1rem; text-align: center; margin: 12px 0; color: #333; }
+        .panel:hover { border-color: var(--gold); z-index: 5000; }
+        .panel img { width: 100%; height: 140px; object-fit: cover; border-radius: 8px; }
+        .panel h3 { font-family: 'Jaini', cursive; font-size: 1.2rem; text-align: center; margin: 12px 0; color: #333; }
 
         .scroll-down {
             position: absolute; bottom: 30px; font-size: 0.7rem;
             color: #ccc; letter-spacing: 2px; font-weight: 800;
         }
 
-        /* --- SECTION 2: FULL LIST GRID --- */
+       
         .list-section {
             padding: 100px 10%; background: white;
             min-height: 100vh;
@@ -86,87 +112,110 @@
 
         .list-section h2 { font-family: 'Jaini', cursive; font-size: 2.8rem; color: var(--crimson); text-align: center; margin-bottom: 50px; }
 
+       
+        .dna-container {
+            max-width: 400px; margin: 0 auto 60px auto;
+            background: #fff; padding: 20px; border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 40px;
         }
 
-        .place-card-link {
-            text-decoration: none;
-            color: inherit;
-        }
+        .place-card-link { text-decoration: none; color: inherit; }
 
         .place-card {
             background: var(--snow); border-radius: 20px; overflow: hidden;
             box-shadow: 0 10px 20px rgba(0,0,0,0.04); transition: 0.3s;
-            border: 1px solid #f0f0f0;
-            height: 100%;
+            border: 1px solid #f0f0f0; height: 100%;
         }
         .place-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
         .place-card img { width: 100%; height: 220px; object-fit: cover; }
         .place-card-content { padding: 25px; }
-        .place-card-content h3 { font-family: 'Jaini', cursive; font-size: 2rem; margin: 0; color: var(--crimson); }
+        .place-card-content h3 { font-family: 'Jaini', cursive; font-size: 2rem; margin: 0; color: var(--blue); }
         .place-card-content p { font-size: 0.9rem; color: #666; line-height: 1.6; margin-top: 10px; }
         
         .view-btn {
-            display: inline-block;
-            margin-top: 15px;
-            color: var(--gold);
-            font-weight: 700;
-            font-size: 0.75rem;
-            letter-spacing: 1px;
+            display: inline-block; margin-top: 15px; color: var(--gold);
+            font-weight: 700; font-size: 0.75rem; letter-spacing: 1px;
             text-transform: uppercase;
         }
 
+        .footer-cta {
+            text-align: center; padding: 80px 20px; background: #fafafa; border-top: 1px solid #eee;
+        }
+        .messenger-btn {
+            background-color: var(--blue); color: white; padding: 15px 40px;
+            text-decoration: none; border-radius: 50px; font-weight: bold;
+            display: inline-block; transition: 0.3s;
+        }
     </style>
 </head>
 <body>
+
+    <div id="loader-overlay">
+        <div class="loader-ritual"></div>
+        <h2 style="font-family: 'Jaini', cursive; color: var(--crimson); margin-top: 20px; letter-spacing: 2px;">SYNCING YOUR VIBE DNA...</h2>
+        <p style="font-size: 0.6rem; color: var(--gold); font-weight: 800; letter-spacing: 3px;">CONSULTING THE ANCIENT ORACLE</p>
+    </div>
 
     <header>
         <div class="logo">ANTARANGA</div>
         <nav>
             <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'dashboard' %}">Intelligence</a>
             <a href="#full-list">All Places</a>
-            <a href="{% url 'home' %}" style="border: 2px solid white; padding: 5px 15px; border-radius: 20px;">Return</a>
+            <a href="{% url 'survey' %}" style="border: 2px solid white; padding: 5px 15px; border-radius: 20px;">Retake Ritual</a>
         </nav>
     </header>
 
     <section class="oracle-section">
         <div class="title-area">
-            <p>SOUL RECOMMENDATION</p>
-            <h1>Discover Your Path</h1>
+            <p>SOUL RESONANCE: CLUSTER #{{ cluster }}</p>
+            <h1>Discover Your Top 10 Paths</h1>
+            <div class="vibe-badge">
+                {% if cluster == 0 %}🏛️ THE HERITAGE SOUL{% elif cluster == 1 %}🏔️ THE PEAK PERFORMER{% elif cluster == 2 %}🔥 THE WILD HEART{% else %}🍃 THE ZEN WANDERER{% endif %}
+            </div>
         </div>
 
         <div class="scene">
             <div class="wheel" id="wheel">
-                {% for loc in locations %}
+                {% for loc in top_locations %}
                 <div class="panel" 
-                     onmouseenter="pause()" 
-                     onmouseleave="resume()" 
-                     onclick="window.location.href='/destination/{{ loc.name|slugify }}/'"
+                     onmouseenter="pause(event)" 
+                     onmouseleave="resume(event)" 
+                     onclick="window.location.href='/destination/{{ loc.target_slug }}/'"
                      data-rotation="">
-                    <img src="{% static loc.manual_image %}" alt="{{ loc.name }}">
+                   <img src="{% static place.hero_image %}" alt="{{ loc.name }}" onerror="this.src='{% static 'app/assets/images/m.png' %}'">
                     <h3>{{ loc.name }}</h3>
-                    <div style="text-align: center; color: var(--gold); font-size: 0.5rem; font-weight: 800; margin-top: auto;">PAUSE & CLICK TO EXPLORE</div>
+                    <div style="text-align: center; color: var(--gold); font-size: 0.5rem; font-weight: 800; margin-top: auto;">FOCUS TO EXPLORE</div>
                 </div>
                 {% endfor %}
             </div>
         </div>
 
-        <div class="scroll-down">↓ SCROLL FOR FULL LIST ↓</div>
+        <div class="scroll-down">↓ SCROLL FOR FULL CLUSTER SIBLINGS ↓</div>
     </section>
 
     <section class="list-section" id="full-list">
         <h2>Your Sanctuaries</h2>
+
+        <div class="dna-container">
+            <h4 style="text-align: center; font-size: 0.7rem; color: var(--gold); letter-spacing: 2px;">VIBE ANALYSIS</h4>
+            <canvas id="vibeChart"></canvas>
+        </div>
+
         <div class="grid-container">
-            {% for loc in locations %}
-            <a href="/destination/{{ loc.name|slugify }}/" class="place-card-link">
+            {% for loc in all_locations %}
+            <a href="/destination/{{ loc.target_slug }}/" class="place-card-link">
                 <div class="place-card">
-                   <img src="{% static loc.manual_image %}" alt="{{ loc.name }}">
+                    
                     <div class="place-card-content">
                         <h3>{{ loc.name }}</h3>
-                        <p>{{ loc.description }}</p>
+                        <p>{{ loc.description|truncatewords:25 }}</p>
                         <span class="view-btn">View the Soul of {{ loc.name }} →</span>
                     </div>
                 </div>
@@ -175,50 +224,89 @@
         </div>
     </section>
 
+    <div class="footer-cta">
+        <h2>Found your destinations?</h2>
+        <p style="margin-bottom: 25px;">Connect with other travelers in <strong>Cluster #{{ cluster }}</strong>!</p>
+        <a href="{% url 'messenger' %}?cluster={{ cluster }}" class="messenger-btn">Consult the Messenger</a>
+    </div>
+
     <script>
         const wheel = document.getElementById('wheel');
         const panels = document.querySelectorAll('.panel');
         let rotation = 0;
         let isPaused = false;
+        
         const panelCount = panels.length;
-        const theta = 360 / panelCount;
+        const theta = panelCount > 0 ? 360 / panelCount : 0;
+        const radius = 450; 
 
-        // Position cards in a tight circle (translateZ 300px)
+       
         panels.forEach((panel, i) => {
             const panelRotation = i * theta;
-            panel.style.transform = `rotateY(${panelRotation}deg) translateZ(300px)`;
+            panel.style.transform = `rotateY(${panelRotation}deg) translateZ(${radius}px)`;
             panel.dataset.rotation = panelRotation;
         });
 
-        function pause() { 
+      
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader-overlay');
+            setTimeout(() => {
+                loader.style.opacity = '0';
+                setTimeout(() => { loader.style.display = 'none'; }, 800);
+            }, 1800); 
+        });
+
+     
+        const ctx = document.getElementById('vibeChart').getContext('2d');
+        
+        new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['Nature', 'Adventure', 'Culture', 'Altitude'],
+                datasets: [{
+                    label: 'Vibe DNA',
+                    data: [{{ profile.nature_score }}, {{ profile.adventure_score }}, {{ profile.culture_score }}, {{ profile.altitude_score }}],
+                    backgroundColor: 'rgba(220, 20, 60, 0.2)',
+                    borderColor: 'rgba(220, 20, 60, 1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#b08d57'
+                }]
+            },
+            options: {
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: { display: false }
+                    }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        function pause(e) { 
             isPaused = true; 
-            const currentRotation = event.currentTarget.dataset.rotation;
-            event.currentTarget.style.transform = `rotateY(${currentRotation}deg) translateZ(300px) scale(1.1)`;
+            const r = e.currentTarget.dataset.rotation;
+            e.currentTarget.style.transform = `rotateY(${r}deg) translateZ(${radius}px) scale(1.15)`;
+            e.currentTarget.style.borderColor = "#b08d57";
         }
 
-        function resume() { 
+        function resume(e) { 
             isPaused = false; 
-            const currentRotation = event.currentTarget.dataset.rotation;
-            event.currentTarget.style.transform = `rotateY(${currentRotation}deg) translateZ(300px) scale(1)`;
+            const r = e.currentTarget.dataset.rotation;
+            e.currentTarget.style.transform = `rotateY(${r}deg) translateZ(${radius}px) scale(1)`;
+            e.currentTarget.style.borderColor = "#eee";
         }
 
         function animate() {
-            if (!isPaused && window.scrollY < 400) {
+            if (!isPaused && window.scrollY < 500 && panelCount > 0) {
                 rotation -= 0.25;
                 wheel.style.transform = `rotateY(${rotation}deg)`;
             }
             requestAnimationFrame(animate);
         }
 
-        animate();
+        if(panelCount > 0) animate();
     </script>
-    <div style="text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid #eee;">
-    <h2>Found your destinations?</h2>
-    <p>Connect with other travelers who also share your interest in <strong>Cluster #{{ cluster }}</strong>!</p>
-    
-    <a href="{% url 'messenger' %}" style="background-color: #38bdf8; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
-        Connect to Others
-    </a>
-</div>
 </body>
 </html>

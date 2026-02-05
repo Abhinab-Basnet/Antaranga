@@ -1,4 +1,4 @@
-/* @import url('https://fonts.googleapis.com/css2?family=Jaini&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap'); */
+@import url('https://fonts.googleapis.com/css2?family=Jaini&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 :root {
     --crimson: #DC143C;
     --royal-blue: #003893;
@@ -32,16 +32,29 @@ body {
     font-family: 'Jaini';
 }
 
+
+nav {
+    display: flex;
+    align-items: center;
+}
+
 nav a { 
     color: white; 
     text-decoration: none;
     margin: 0 15px; 
     font-weight: 500; 
     font-size: 1.1rem;
+    font-family: 'Jaini'; 
+}
+
+
+nav a:hover {
+    text-decoration: underline;
+    opacity: 0.9;
 }
 
 .nav-btn {
-    background: url('/images/Pattern.jpeg'), #b08d57;
+    background: url('app/static/assets/images/Pattern.jpeg'), orangered;
     background-size: cover;
     color: white; 
     border: 1px solid white;
@@ -51,9 +64,9 @@ nav a {
     font-size: 1rem;
     font-weight: 600;
     font-family: 'Jaini';
+    margin-left: 10px;
 }
 
-/* BACKGROUND & CONTAINER */
 .nepal-bg {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -80,7 +93,7 @@ nav a {
     box-shadow: 0 10px 30px rgba(0,0,0,0.08);
 }
 
-/* SURVEY PROGRESS NAV */
+
 .survey-nav {
     display: flex;
     justify-content: space-between;
