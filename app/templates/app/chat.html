@@ -1,126 +1,177 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Antaranga | Messenger</title>
     <style>
-    
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: sans-serif; background: #f5f5f5; }
-        .chat-container { max-width: 1000px; margin: 20px auto; background: white; height: 80vh; display: flex; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; }
-        .conversations-list { width: 300px; border-right: 1px solid #e0e0e0; background: #fafafa; display: flex; flex-direction: column; }
-        .conversations-header { padding: 20px; background: #075e54; color: white; font-weight: bold; }
-        .conversation-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; text-decoration: none; color: black; display: block; }
-        .conversation-item:hover { background: #f0f0f0; }
-        .conversation-item.active { background: #e8f5e9; border-left: 5px solid #075e54; }
-        .chat-area { flex: 1; display: flex; flex-direction: column; }
-        .chat-header { padding: 20px; background: #075e54; color: white; font-weight: bold; }
-        .messages-area { flex: 1; padding: 20px; overflow-y: auto; background: #e5ddd5; display: flex; flex-direction: column; }
-        .message { margin-bottom: 10px; display: flex; }
-        .message.sent { justify-content: flex-end; }
-        .message-bubble { max-width: 70%; padding: 10px; border-radius: 8px; position: relative; font-size: 14px; }
-        .message.received .message-bubble { background: white; }
-        .message.sent .message-bubble { background: #dcf8c6; }
-        .message-input-area { padding: 15px; background: #f0f0f0; display: flex; gap: 10px; }
-        .message-input { flex: 1; padding: 10px; border-radius: 20px; border: 1px solid #ddd; outline: none; }
-        .send-button { background: #075e54; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; }
+        body { font-family: "Segoe UI", sans-serif; background: #f0f2f5; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+        /* Navigation Bar */
+        .top-nav { background: #1a4d2e; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; color: white; height: 60px; }
+        .top-nav a { color: white; text-decoration: none; border: 1px solid white; padding: 5px 15px; border-radius: 20px; font-size: 14px; transition: 0.3s; }
+        .top-nav a:hover { background: white; color: #1a4d2e; }
+
+        /* Layout Container */
+        .chat-container { display: flex; flex: 1; width: 100%; background: white; overflow: hidden; }
+
+        /* Sidebar & Cluster Switcher */
+        .sidebar { width: 320px; border-right: 1px solid #e0e0e0; display: flex; flex-direction: column; background: #fff; }
+        
+        /* THE SWITCHER BOX */
+        .cluster-switcher { padding: 15px; background: #f8faf9; border-bottom: 1px solid #eee; }
+        .cluster-switcher label { font-size: 11px; color: #666; font-weight: bold; display: block; margin-bottom: 5px; text-transform: uppercase; }
+        .vibe-select { width: 100%; padding: 10px; background: #1a4d2e; color: white; border: none; border-radius: 8px; outline: none; cursor: pointer; font-weight: 500; }
+
+        .match-list { flex: 1; overflow-y: auto; }
+        .match-list-title { padding: 15px 20px 5px; font-size: 12px; color: #888; font-weight: bold; }
+        
+        .conversation-item { padding: 15px 20px; border-bottom: 1px solid #f0f0f0; text-decoration: none; color: #333; display: block; transition: 0.2s; }
+        .conversation-item:hover { background: #f8faf9; }
+        .conversation-item.active { background: #e8f5e9; border-left: 5px solid #1a4d2e; }
+
+        /* Main Chat Area */
+        .chat-area { flex: 1; display: flex; flex-direction: column; background: #f9f9f9; }
+        .chat-header { padding: 15px 25px; background: white; border-bottom: 1px solid #eee; font-weight: 600; color: #1a4d2e; }
+        
+        .messages-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+        
+        /* Modern Bubbles */
+        .message { display: flex; width: 100%; }
+        .sent { justify-content: flex-end; }
+        .received { justify-content: flex-start; }
+        .bubble { max-width: 70%; padding: 10px 16px; border-radius: 18px; font-size: 14px; line-height: 1.4; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        
+        .sent .bubble { background: #1a4d2e; color: white; border-bottom-right-radius: 4px; }
+        .received .bubble { background: #ffffff; color: #333; border-bottom-left-radius: 4px; border: 1px solid #eee; }
+        
+        .timestamp { font-size: 9px; opacity: 0.7; margin-top: 4px; text-align: right; display: block; }
+
+        /* Input Area */
+        .input-area { padding: 20px; background: white; border-top: 1px solid #eee; display: flex; gap: 10px; }
+        .message-input { flex: 1; padding: 12px 20px; border: 1px solid #ddd; border-radius: 25px; outline: none; transition: 0.3s; }
+        .message-input:focus { border-color: #1a4d2e; box-shadow: 0 0 5px rgba(26,77,46,0.2); }
+        .send-btn { background: #1a4d2e; color: white; border: none; padding: 0 25px; border-radius: 25px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .send-btn:hover { background: #143b23; }
     </style>
-    <header>
-    <a href="{% url 'home' %}" style="border: 2px solid white; padding: 5px 15px; border-radius: 20px;">Return</a>
-<div class="conversations-header">
-    <span style="display:block; margin-bottom:5px;">Your Vibes</span>
-    <select onchange="location.href='?cluster=' + this.value;" style="width: 100%; padding: 5px; background: #064e47; color: white; border: 1px solid #053e37; border-radius: 4px;">
-        {% for cid in unlocked_clusters %}
-            <option value="{{ cid }}" {% if cid == current_cluster %}selected{% endif %}>
-                Vibe #{{ cid }} {% if cid == 1 %}(Mountains){% elif cid == 2 %}(Culture){% endif %}
-            </option>
-        {% empty %}
-            <option>No Vibes Unlocked</option>
-        {% endfor %}
-    </select>
-</div>
-</header>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="conversations-list">
-            <div class="conversations-header">Travelers in Cluster #{{ my_cluster }}</div>
-            {% for match in matches %}
-            <a href="{% url 'messenger_with_user' match.user.username %}" 
-               class="conversation-item {% if active_chat_user == match.user %}active{% endif %}">
-                <div style="font-weight: bold;">{{ match.user.username }}</div>
-                <div style="font-size: 12px; color: #666;">Match found via Oracle</div>
-            </a>
-            {% empty %}
-            <div style="padding: 20px; color: #999;">No matches found yet.</div>
-            {% endfor %}
-        </div>
-        <div id="chat-window" style="height: 400px; overflow-y: scroll; border: 1px solid #ddd; padding: 15px; margin-bottom: 20px;">
-    <div id="chat-log">
-        {% for msg in chat_history %}
-            <p><strong>{{ msg.sender.username }}:</strong> {{ msg.content }}</p>
-        {% endfor %}
+
+    <div class="top-nav">
+        <a href="{% url 'home' %}">← Return to Rituals</a>
+        <div style="font-weight: bold; letter-spacing: 1px;">ANTARANGA MESSENGER</div>
+        <div style="font-size: 12px; opacity: 0.8;">User: {{ request.user.username }}</div>
     </div>
-</div>
 
-<div class="input-group">
-    <input id="chat-message-input" type="text" class="form-control" placeholder="Type your message...">
-    <button id="chat-message-submit" class="btn btn-primary">Send</button>
-</div>
+    <div class="chat-container">
+        <div class="sidebar">
+            <div class="cluster-switcher">
+                <label>Explore Travel Vibes</label>
+                <select class="vibe-select" onchange="location.href = '?cluster=' + this.value">
+                    {% for cid in unlocked_clusters %}
+                    <option value="{{ cid }}" {% if cid == current_cluster %}selected{% endif %}>
+                        Vibe #{{ cid }} 
+                        {% if cid == 1 %}(Mountains){% elif cid == 0 %}(Culture){% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
 
-<script>
-    const otherUserId = "{{ active_chat_user.id }}";
-    const chatSocket = new WebSocket(
-        (window.location.protocol === 'https:' ? 'wss://' : 'ws://') 
-        + window.location.host + '/ws/chat/' + otherUserId + '/'
-    );
-
-    // Replaces the 'receive' thread from your Python client
-    chatSocket.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-        const log = document.querySelector('#chat-log');
-        log.innerHTML += `<p><strong>${data.sender}:</strong> ${data.message}</p>`;
-        document.querySelector('#chat-window').scrollTop = log.scrollHeight;
-    };
-
-    // Replaces the 'write' thread from your Python client
-    document.querySelector('#chat-message-submit').onclick = function(e) {
-        const input = document.querySelector('#chat-message-input');
-        chatSocket.send(JSON.stringify({'message': input.value}));
-        input.value = '';
-    };
-</script>
+            <div class="match-list">
+                <p class="match-list-title">Fellow Travelers</p>
+                {% for match in matches %}
+                <a href="{% url 'messenger_with_user' match.user.username %}?cluster={{ current_cluster }}" 
+                   class="conversation-item {% if active_chat_user.username == match.user.username %}active{% endif %}">
+                    <strong>{{ match.user.username }}</strong>
+                    <div style="font-size: 11px; color: #888;">Match from Vibe #{{ current_cluster }}</div>
+                </a>
+                {% empty %}
+                <div style="padding: 30px; text-align: center; color: #999; font-size: 13px;">
+                    No travelers found in this vibe yet.
+                </div>
+                {% endfor %}
+            </div>
+        </div>
 
         <div class="chat-area">
             {% if active_chat_user %}
-                <div class="chat-header">Chatting with {{ active_chat_user.username }}</div>
-                <div class="messages-area" id="msgBox">
-                    {% for msg in chat_history %}
-                    <div class="message {% if msg.sender == request.user %}sent{% else %}received{% endif %}">
-                        <div class="message-bubble">
-                            {{ msg.content }}
-                            <div style="font-size: 9px; color: #888; text-align: right;">{{ msg.timestamp|date:"H:i" }}</div>
-                        </div>
+            <div class="chat-header">
+                Chatting with {{ active_chat_user.username }}
+            </div>
+
+            <div class="messages-area" id="msgBox">
+                {% for msg in chat_history %}
+                <div class="message {% if msg.sender == request.user %}sent{% else %}received{% endif %}">
+                    <div class="bubble">
+                        {{ msg.content }}
+                        <span class="timestamp">{{ msg.timestamp|date:"H:i" }}</span>
                     </div>
-                    {% endfor %}
                 </div>
-                <form method="POST" class="message-input-area">
-                    {% csrf_token %}
-                    <input type="text" name="content" class="message-input" placeholder="Type a message..." required>
-                    <button type="submit" class="send-button">Send</button>
-                </form>
+                {% endfor %}
+            </div>
+
+            <div class="input-area">
+                <input type="text" id="chat-input" class="message-input" placeholder="Type a message to your buddy..." autocomplete="off">
+                <button id="send-btn" class="send-btn">Send</button>
+            </div>
             {% else %}
-                <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #999;">
-                    Select a travel buddy to start chatting
-                </div>
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #bbb;">
+                <div style="font-size: 60px; margin-bottom: 10px;">💬</div>
+                <p>Select a buddy from the left to start your journey.</p>
+                <p style="font-size: 12px; margin-top: 5px;">You are currently browsing <b>Vibe Cluster #{{ current_cluster }}</b></p>
+            </div>
             {% endif %}
         </div>
     </div>
 
     <script>
-       
-        var objDiv = document.getElementById("msgBox");
-        if(objDiv) objDiv.scrollTop = objDiv.scrollHeight;
+        {% if active_chat_user %}
+        // WebSocket setup
+        const roomName = "{{ active_chat_user.username }}";
+        const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+        const chatSocket = new WebSocket(protocol + window.location.host + '/ws/chat/' + roomName + '/');
+
+        const msgBox = document.getElementById("msgBox");
+        
+        // Auto-scroll to bottom
+        const scrollToBottom = () => {
+            msgBox.scrollTop = msgBox.scrollHeight;
+        };
+        scrollToBottom();
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            const isMe = data.username === "{{ request.user.username }}";
+            
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${isMe ? 'sent' : 'received'}`;
+            msgDiv.innerHTML = `
+                <div class="bubble">
+                    ${data.message}
+                    <span class="timestamp">Just now</span>
+                </div>
+            `;
+            msgBox.appendChild(msgDiv);
+            scrollToBottom();
+        };
+
+        const sendMessage = () => {
+            const input = document.getElementById("chat-input");
+            if (input.value.trim() !== "") {
+                chatSocket.send(JSON.stringify({
+                    'message': input.value,
+                    'username': "{{ request.user.username }}"
+                }));
+                input.value = "";
+            }
+        };
+
+        document.getElementById("send-btn").onclick = sendMessage;
+
+        document.getElementById("chat-input").onkeyup = function(e) {
+            if (e.keyCode === 13) sendMessage();
+        };
+        {% endif %}
     </script>
 </body>
 </html>

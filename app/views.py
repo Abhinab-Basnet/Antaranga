@@ -261,15 +261,23 @@ def recommend(request):
     return redirect('survey')
 
 @login_required
+@login_required
 def messenger(request, username=None):
-    """Handles cluster-based matching and messaging."""
+    # 1. Get all clusters the user has ever 'unlocked' through surveys
     unlocked_clusters = ClusterHistory.objects.filter(user=request.user).values_list('cluster_id', flat=True).distinct()
+    
+    # 2. Check if a specific cluster was requested via the dropdown (?cluster=X)
     cluster_param = request.GET.get('cluster')
-    
     user_profile, _ = UserProfile.objects.get_or_create(user=request.user)
-    current_selected_cluster = int(cluster_param) if cluster_param and cluster_param.isdigit() else user_profile.cluster_id
     
-    matches = UserProfile.objects.filter(cluster_id=current_selected_cluster).exclude(user=request.user) if current_selected_cluster else []
+    # Use the requested cluster, otherwise fall back to the user's current profile cluster
+    if cluster_param and cluster_param.isdigit():
+        current_selected_cluster = int(cluster_param)
+    else:
+        current_selected_cluster = user_profile.cluster_id
+    
+    # 3. Filter matches based on the SELECTED cluster
+    matches = UserProfile.objects.filter(cluster_id=current_selected_cluster).exclude(user=request.user)
 
     active_chat_user = None
     chat_history = []
@@ -281,18 +289,21 @@ def messenger(request, username=None):
             (Q(sender=active_chat_user) & Q(receiver=request.user))
         ).order_by('timestamp')
 
+    # Note: If you use WebSockets (which we have set up), this POST block 
+    # acts as a backup, but usually, the WebSocket handles the sending.
     if request.method == "POST" and active_chat_user:
         msg_content = request.POST.get('content')
         if msg_content:
             Message.objects.create(sender=request.user, receiver=active_chat_user, content=msg_content)
             url = reverse('messenger_with_user', kwargs={'username': username})
-            if cluster_param: url += f"?cluster={cluster_param}"
+            if cluster_param: 
+                url += f"?cluster={cluster_param}"
             return redirect(url)
 
     return render(request, 'app/chat.html', {
         'matches': matches,
         'unlocked_clusters': unlocked_clusters,
-        'current_cluster': current_selected_cluster,
+        'current_cluster': current_selected_cluster, # This tells the HTML which one is active
         'active_chat_user': active_chat_user,
         'chat_history': chat_history,
     })
