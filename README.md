@@ -137,18 +137,3 @@ Open the URL in your web browser to access Antaranga.
 5. Suitable destinations in Nepal are selected based on the user's preferences.
 6. The recommended destinations are displayed with useful location information.
 7. Users can explore details such as local food, altitude, temperature, and the best time to visit.
-
-## 🌄 Purpose
-
-Antaranga aims to make travel planning in Nepal easier and more personalized by connecting travelers with destinations that match their interests and preferred travel experiences.
-
-## 📌 Future Improvements
-
-* User authentication and personalized profiles
-* Interactive maps and location tracking
-* Weather API integration
-* Hotel and accommodation recommendations
-* Transportation information
-* Online tour booking
-* AI-based travel recommendations
-* Multi-day personalized itinerary generation
