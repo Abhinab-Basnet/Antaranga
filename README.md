@@ -152,7 +152,3 @@ Antaranga aims to make travel planning in Nepal easier and more personalized by 
 * Online tour booking
 * AI-based travel recommendations
 * Multi-day personalized itinerary generation
-
-## 📄 License
-
-This project is developed for educational and project purposes.
